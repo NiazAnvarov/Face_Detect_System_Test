@@ -137,7 +137,7 @@ namespace Face_Detect_System_Test
                                     //    $"ID: {result.Label}, Confidence: {result.Distance:F2}",
                                     //    new System.Drawing.Point(rectY, rectX - 10),
                                     //    Emgu.CV.CvEnum.FontFace.HersheySimplex,
-                                    //    1,
+                                    //    1, 
                                     //    new MCvScalar(0, 255, 0));
                                 }
                             }
