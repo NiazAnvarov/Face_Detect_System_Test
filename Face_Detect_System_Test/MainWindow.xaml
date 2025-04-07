@@ -5,9 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Face_Detect_System_Test"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="1200">
+        Title="Face recognition system" Icon="/Images/Icon.png" Width="1920" Height="1080" MinWidth="1920" MinHeight="1080">
     <Grid>
-        <Image Name="ImgOut" Width="500" Height="500"/>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Vertical" Grid.Column="0" Background="#E3E3E3">
+            <StackPanel Orientation="Horizontal" Margin="20 40 0 0" >
+                <Image Source="/Images/Icon.png" Width="70"/>
+                <TextBlock Text="Facial recognition system" Margin="10 0 0 0"  TextWrapping="Wrap" Width="200" TextAlignment="Center" VerticalAlignment="Center" FontSize="25"/>
+            </StackPanel>
+            <StackPanel Name="FIPan" MouseDown="FIPan_MouseDown" Orientation="Horizontal" Margin="20 80 0 0">
+                <Image Name="FIImg" Source="/Images/Face_detect_dark.png" Width="50" Height="50"/>
+                <TextBlock Name="FIText" Text="Найти человека" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" FontSize="20"/>
+            </StackPanel>
+            <StackPanel Name="FDPan" MouseDown="FDPan_MouseDown" Orientation="Horizontal" Margin="20 5 0 0">
+                <Image Name="FDImg" Source="/Images/Face_identify_dark.png" Width="50" Height="50"/>
+                <TextBlock Name="FDText" Text="Распознавание людей" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" FontSize="20"/>
+            </StackPanel>
+        </StackPanel>
+        <Frame Name="MainFrame" Grid.Column="2" NavigationUIVisibility="Hidden"/>
     </Grid>
+    
+    
+    
 </Window>

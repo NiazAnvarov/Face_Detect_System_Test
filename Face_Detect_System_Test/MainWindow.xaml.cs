@@ -11,38 +11,45 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Emgu.CV.Face;
 using Emgu.CV.CvEnum;
+using System.IO;
+using Face_Detect_System_Test.Pages;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Face_Detect_System_Test
 {
     public partial class MainWindow : Window
     {
-        
-        private VideoCapture _capture;
-        private DispatcherTimer _timer;
-        private readonly object _lock = new object();
+
+        // Определите переменную для хранения текущей страницы
+        private Page currentPage;
+
+        private FaceIdentifyPage FIPage;
+        private FaceDetectPage FDPage;
+
+        //private FaceDetectorYN _detector;
         private FacesDetect facesDetect = new FacesDetect();
+        private ModelTraining modelTr = new ModelTraining();
 
         // Создаем распознаватель лиц
         private LBPHFaceRecognizer recognizer = new LBPHFaceRecognizer();
-
-        [DllImport("gdi32")]
-        private static extern int DeleteObject(IntPtr o);
 
         public MainWindow()
         {
             InitializeComponent();
             InitializeFaceDetection();
-            recognizer.Read("H:\\rec.xml");
+            
         }
 
         private void InitializeFaceDetection()
         {
             try
             {
-                _capture = new VideoCapture(0);
-                _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
-                _timer.Tick += Timer_Tick;
-                _timer.Start();
+                recognizer.Read("H:\\mymod.xml");
+                //_detector = facesDetect.DetectorInit("H:\\face_detection_yunet_2023mar.onnx");
+
+                
+
             }
             catch (Exception ex)
             {
@@ -51,144 +58,73 @@ namespace Face_Detect_System_Test
             }
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void FIPan_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            lock (_lock)
+            FIPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 110, 110, 110));
+            FIText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
+            FIImg.Source = new BitmapImage(new Uri(@"/Images/Face_detect_light.png", UriKind.Relative));
+
+            FDPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+            FDText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
+            FDImg.Source = new BitmapImage(new Uri(@"/Images/Face_identify_dark.png", UriKind.Relative));
+
+            // Проверьте, если текущая страница не является
+            if (FIPage != null)
+                return; // Если уже открыта подходящая страница, то ничего не делаем
+            if (FDPage != null)
             {
-                try
-                {
-                    var frame = _capture.QueryFrame();
-                    if (frame == null) return;
-
-                    var faces = new Mat();
-                    faces = facesDetect.DetectFaces(frame);
-                    
-                    try
-                    {
-                        if (faces.Rows > 0)
-                        {
-                            var facesData = new Matrix<float>(faces.Rows, faces.Cols);
-                            faces.CopyTo(facesData);
-                            //for(int i = 0; i < faces.Cols; i++)
-                            //{
-                            //    Console.WriteLine(facesData[0, i]);
-                            //}
-
-                            for (int i = 0; i < faces.Rows; i++)
-                            {
-                                float confidence = facesData[i, 0];
-                                if (confidence >= 0.9f)
-                                {
-                                    // Нормализация координат центра
-                                    float centerX = facesData[i, 4] + facesData[i, 2] / 4;
-                                    float centerY = facesData[i, 1] + facesData[i, 3] / 4;
-
-                                    // Нормализация размеров
-                                    float width = facesData[i, 2];
-                                    float height = facesData[i, 3];
-
-                                    int frameWidth = frame.Width;
-                                    int frameHeight = frame.Height;
-
-                                    // Преобразование в пиксели с учетом размера кадра
-                                    int rectX = (int)(centerX * frameWidth - width * frameWidth / 2);
-                                    int rectY = (int)(centerY * frameHeight - height * frameHeight / 2);
-                                    int rectWidth = (int)width;
-                                    int rectHeight = (int)height;
-
-                                    // Ограничение по границам изображения
-                                    rectX = (int)(centerX - width/1.8);
-                                    rectY = (int)(centerY - height/3.8);
-
-                                    // Вывод отладочной информации
-                                    Console.WriteLine($"Координаты лица:");
-                                    Console.WriteLine($"centerX: {centerX:F4}, centerY: {centerY:F4}");
-                                    Console.WriteLine($"width: {width:F4}, height: {height:F4}");
-                                    Console.WriteLine($"rectX: {rectX}, rectY: {rectY}");
-                                    Console.WriteLine($"rectWidth: {rectWidth}, rectHeight: {rectHeight}");
-
-                                    // Обрезаем область лица из кадра
-                                    Rectangle faceRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
-                                    // Обрезаем лицо
-                                    Mat faceImage = new Mat(frame, faceRect);
-
-                                    // Конвертируем в черно-белое изображение и нормализуем размер
-                                    Mat grayFace = new Mat();
-                                    Mat resizedFace = new Mat();
-                                    CvInvoke.CvtColor(faceImage, grayFace, ColorConversion.Bgr2Gray);
-                                    CvInvoke.Resize(grayFace, resizedFace, new System.Drawing.Size(250, 250));
-
-
-                                    // Распознаем человека на изображении
-                                    var result = recognizer.Predict(grayFace);
-                                    int predictedLabel = result.Label;
-                                    float confidenceRez = (float)result.Distance;
-
-                                    // Рисуем прямоугольник и результат распознавания
-                                    CvInvoke.Rectangle(frame,
-                                        faceRect,
-                                        result.Label < 60 ?
-                                            new MCvScalar(0, 0, 255) : // Красный для неизвестных лиц
-                                            new MCvScalar(0, 255, 0), // Зеленый для распознанных лиц
-                                        2);
-                                    //CvInvoke.Flip(frame, frame, FlipType.Horizontal); // Отзеркаливание по горизонтали
-                                    //// Отображаем результат распознавания
-                                    //CvInvoke.PutText(frame,
-                                    //    $"ID: {result.Label}, Confidence: {result.Distance:F2}",
-                                    //    new System.Drawing.Point(rectY, rectX - 10),
-                                    //    Emgu.CV.CvEnum.FontFace.HersheySimplex,
-                                    //    1, 
-                                    //    new MCvScalar(0, 255, 0));
-                                }
-                            }
-                        }
-                    }
-                    catch(Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-
-                    ImgOut.Source = BitmapSourceConvert(frame);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка при обработке кадра: {ex.Message}");
-                }
+                FDPage.checkWeb = false;
+                FDPage.checkVideo = false;
+                FDPage = null;
             }
+            currentPage = null;
+            FIPage = new FaceIdentifyPage();
+            MainFrame.Navigate(FIPage);
+            Manager.MainFrame = MainFrame;
         }
 
-        private BitmapSource BitmapSourceConvert(Mat mat)
+        private void FDPan_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (mat.IsEmpty)
-                throw new ArgumentException("Source Mat is empty.");
+            FIPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+            FIText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
+            FIImg.Source = new BitmapImage(new Uri(@"/Images/Face_detect_dark.png", UriKind.Relative));
 
-            using (var bitmap = mat.ToImage<Bgr, byte>().ToBitmap())
+            FDPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 110, 110, 110));
+            FDText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
+            FDImg.Source = new BitmapImage(new Uri(@"/Images/Face_identify_light.png", UriKind.Relative));
+
+            // Проверьте, если текущая страница не является
+            if (FDPage != null)
+                return; // Если уже открыта подходящая страница, то ничего не делаем
+            if (FIPage != null)
             {
-                var hBitmap = bitmap.GetHbitmap();
-                try
-                {
-                    return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                        hBitmap,
-                        IntPtr.Zero,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                }
-                finally
-                {
-                    DeleteObject(hBitmap);
-                }
+                FIPage.checkWeb = false;
+                FIPage.checkVideo = false;
+                FIPage = null;
             }
+            FDPage = new FaceDetectPage();
+            MainFrame.Navigate(FDPage);
+            Manager.MainFrame = MainFrame;
+
         }
 
+        
 
 
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            _timer?.Stop();
-            _capture?.Dispose();
+            //_detector?.Dispose();
             facesDetect?.Dispose();
 
+        }
+
+        private void ModelTren_Click(object sender, RoutedEventArgs e)
+        {
+            // Подготовка данных для обучения
+            string[] trainingImagesPaths = Directory.GetFiles("training_folder", "*.jpg");
+            modelTr.ModelTrain("H:\\mymod.xml", trainingImagesPaths, 0);
+            Console.WriteLine("Модель обучена!");
         }
     }
 }

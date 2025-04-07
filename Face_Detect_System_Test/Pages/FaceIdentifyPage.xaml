@@ -1,0 +1,30 @@
+﻿<Page x:Class="Face_Detect_System_Test.Pages.FaceIdentifyPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Face_Detect_System_Test.Pages"
+      mc:Ignorable="d"
+      Title="FaceIdentifyPage" Height="1080" Background="White">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <Image Name="FIOutputImage" Source="/Images/Default_picture.png" Height="850" Grid.Column="0" Margin="45 0 45 65" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Text="Найти по ФИО" Grid.Column="1" TextAlignment="Center" FontSize="25" HorizontalAlignment="Right" Width="350" Background="#E3E3E3"/>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Width="350" Margin="0 50 0 0">
+            <TextBox Name="FIOSearch" FontSize="25" Height="50" Margin="10"/>
+            <Button Content="С видеокамеры" Name="WebCamStart" Click="WebCamStart_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
+            <Button Content="С видеофайла" Name="VideoFileStart" Click="VideoFileStart_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
+            <Button Content="Загрузить видеофайл" Name="VideoFile" Click="VideoFile_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
+
+        </StackPanel>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Grid.Column="1" >
+            <Button Content="Загрузить фотографию" Name="PhotoLoad" Click="PhotoLoad_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
+            <Button Content="Завершить поиск по фото" Name="PhotoDetectStop" Click="PhotoDetectStop_Click" FontSize="25" Height="50" Margin="20 0 20 100" Background="#BFBFBF"/>
+        </StackPanel>
+
+    </Grid>
+</Page>

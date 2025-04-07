@@ -1,0 +1,53 @@
+﻿<Page x:Class="Face_Detect_System_Test.Pages.FaceDetectPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Face_Detect_System_Test.Pages"
+      mc:Ignorable="d" 
+      Title="FaceDetectPage" Height="1080" Background="White">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <Image Name="FIOutputImage" Source="/Images/Default_picture.png" Height="850" Grid.Column="0" Margin="45 0 45 65" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Text="В кадре" Grid.Column="1" TextAlignment="Center" FontSize="25" HorizontalAlignment="Right" Width="350" Background="#E3E3E3"/>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Width="350" Margin="0 50 0 0">
+            <ListView Name="PersInfoView" Grid.Column="1" Width="340" Height="630"  HorizontalAlignment="Right">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Фамилия: " FontSize="20"/>
+                                    <TextBlock Text="{Binding LastName}" FontSize="20"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Имя: " FontSize="20"/>
+                                    <TextBlock Text="{Binding FirstName}" FontSize="20"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Отчество: " FontSize="20"/>
+                                    <TextBlock Text="{Binding Patronymic}" FontSize="20"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Дата рождения: " FontSize="20"/>
+                                    <TextBlock Text="{Binding BirthdayFormat}" FontSize="20"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Деятельность: " FontSize="20"/>
+                                    <TextBlock Text="{Binding Activity}" FontSize="20"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Content="С видеокамеры" Name="WebCamStart" Click="WebCamStart_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
+            <Button Content="С видеофайла" Name="VideoFileStart" Click="VideoFileStart_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
+            <Button Content="Загрузить видеофайл" Name="VideoFile" Click="VideoFile_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
+        </StackPanel>
+    </Grid>
+</Page>
