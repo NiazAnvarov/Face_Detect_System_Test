@@ -31,6 +31,10 @@ namespace Face_Detect_System_Test.Pages
     public partial class FaceDetectPage : Page
     {
 
+        // пути к моделям
+        private const string pathRecModel = "H:\\mymod.xml"; // путь до модели распознавания лиц (mymod)
+        private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
+
         public bool checkWeb = true;
         public bool checkVideo = true;
 
@@ -53,11 +57,10 @@ namespace Face_Detect_System_Test.Pages
         public FaceDetectPage()
         {
             InitializeComponent();
-            //_detector = facesDetect.DetectorInit("H:\\face_detection_yunet_2023mar.onnx");
             VideoFile.Visibility = Visibility.Hidden;
             WebCamStart.IsEnabled = true;
             VideoFileStart.IsEnabled = true;
-            recognizer.Read("H:\\mymod.xml");
+            recognizer.Read(pathRecModel);
             
         }
 
@@ -79,7 +82,7 @@ namespace Face_Detect_System_Test.Pages
                     frameWidth = (int)capture.Get(CapProp.FrameWidth);
                     frameHeight = (int)capture.Get(CapProp.FrameHeight);
                     fps = capture.Get(CapProp.Fps);
-                    _detector = facesDetect.DetectorInit("H:\\face_detection_yunet_2023mar.onnx", frameWidth, frameHeight);
+                    _detector = facesDetect.DetectorInit(pathYuNetModel, frameWidth, frameHeight);
                     CheckHW = false;
                 }
 
@@ -137,7 +140,7 @@ namespace Face_Detect_System_Test.Pages
                     frameHeight = (int)capture.Get(CapProp.FrameHeight);
                     
                     fps = capture.Get(CapProp.Fps);
-                    _detector = facesDetect.DetectorInit("H:\\face_detection_yunet_2023mar.onnx", frameWidth, frameHeight);
+                    _detector = facesDetect.DetectorInit(pathYuNetModel, frameWidth, frameHeight);
                     CheckHW = false;
                 }
 

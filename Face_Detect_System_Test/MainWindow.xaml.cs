@@ -21,9 +21,6 @@ namespace Face_Detect_System_Test
     public partial class MainWindow : Window
     {
 
-        // Определите переменную для хранения текущей страницы
-        private Page currentPage;
-
         private FaceIdentifyPage FIPage;
         private FaceDetectPage FDPage;
 
@@ -31,31 +28,10 @@ namespace Face_Detect_System_Test
         private FacesDetect facesDetect = new FacesDetect();
         private ModelTraining modelTr = new ModelTraining();
 
-        // Создаем распознаватель лиц
-        private LBPHFaceRecognizer recognizer = new LBPHFaceRecognizer();
-
         public MainWindow()
         {
             InitializeComponent();
-            InitializeFaceDetection();
             
-        }
-
-        private void InitializeFaceDetection()
-        {
-            try
-            {
-                recognizer.Read("H:\\mymod.xml");
-                //_detector = facesDetect.DetectorInit("H:\\face_detection_yunet_2023mar.onnx");
-
-                
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при инициализации: {ex.Message}");
-                Close();
-            }
         }
 
         private void FIPan_MouseDown(object sender, MouseButtonEventArgs e)
@@ -77,7 +53,6 @@ namespace Face_Detect_System_Test
                 FDPage.checkVideo = false;
                 FDPage = null;
             }
-            currentPage = null;
             FIPage = new FaceIdentifyPage();
             MainFrame.Navigate(FIPage);
             Manager.MainFrame = MainFrame;

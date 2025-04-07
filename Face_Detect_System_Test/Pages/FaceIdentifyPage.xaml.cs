@@ -29,6 +29,11 @@ namespace Face_Detect_System_Test.Pages
     public partial class FaceIdentifyPage : Page
     {
 
+        // пути к моделям
+        private const string pathHarCasc = "H:\\haarcascade_frontalface_alt2.xml"; //путь до каскада Хаар
+        private const string pathRecModel = "H:\\mymod.xml"; // путь до модели распознавания лиц (mymod)
+        private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
+
         public bool checkWeb = true;
         public bool checkVideo = true;
         private string PhotoLoadPath = null;
@@ -41,7 +46,7 @@ namespace Face_Detect_System_Test.Pages
         private double fps;
 
         // Создаем распознаватель лиц
-        private CascadeClassifier _faceCascade = new CascadeClassifier("H:\\haarcascade_frontalface_alt2.xml");
+        private CascadeClassifier _faceCascade = new CascadeClassifier(pathHarCasc);
         private LBPHFaceRecognizer recognizer = new LBPHFaceRecognizer();
         private FaceDetectorYN _detector;
         private FaceDetectorYN _detectorPh;
@@ -64,7 +69,7 @@ namespace Face_Detect_System_Test.Pages
             }
 
 
-            recognizer.Read("H:\\mymod.xml");
+            recognizer.Read(pathRecModel);
         }
 
         public static ImageSource BitmapToImageSource(Bitmap bitmap)
@@ -87,7 +92,7 @@ namespace Face_Detect_System_Test.Pages
             }
         }
 
-        public async void IdentifyFaceWebCam(string binaryDatasetPath)
+        public async void IdentifyFaceWebCam()
         {
             using (VideoCapture capture = new VideoCapture(0))
             {
@@ -104,7 +109,7 @@ namespace Face_Detect_System_Test.Pages
                     frameWidth = (int)capture.Get(CapProp.FrameWidth);
                     frameHeight = (int)capture.Get(CapProp.FrameHeight);
                     fps = capture.Get(CapProp.Fps);
-                    _detector = facesDetect.DetectorInit("H:\\face_detection_yunet_2023mar.onnx", frameWidth, frameHeight);
+                    _detector = facesDetect.DetectorInit(pathYuNetModel, frameWidth, frameHeight);
                     CheckHW = false;
                 }
 
@@ -147,7 +152,7 @@ namespace Face_Detect_System_Test.Pages
             }
         }
 
-        public async void IdentifyFaceVideoFile(string binaryDatasetPath, string vFilePath)
+        public async void IdentifyFaceVideoFile( string vFilePath)
         {
             using (VideoCapture capture = new VideoCapture(vFilePath))
             {
@@ -163,7 +168,7 @@ namespace Face_Detect_System_Test.Pages
                     frameWidth = (int)capture.Get(CapProp.FrameWidth);
                     frameHeight = (int)capture.Get(CapProp.FrameHeight);
                     fps = capture.Get(CapProp.Fps);
-                    _detector = facesDetect.DetectorInit("H:\\face_detection_yunet_2023mar.onnx", frameWidth, frameHeight);
+                    _detector = facesDetect.DetectorInit(pathYuNetModel, frameWidth, frameHeight);
                     CheckHW = false;
                 }
 
@@ -216,7 +221,7 @@ namespace Face_Detect_System_Test.Pages
             VideoFileStart.IsEnabled = true;
             checkVideo = false;
             checkWeb = true;
-            IdentifyFaceWebCam("H:\\Учёба\\4 курс\\Производственная практика\\FaceRecognition\\FaceRecognition\\dataset\\dataset.bin");
+            IdentifyFaceWebCam();
         }
 
         private void VideoFileStart_Click(object sender, RoutedEventArgs e)
@@ -242,7 +247,7 @@ namespace Face_Detect_System_Test.Pages
             if (myopenFileDialog.ShowDialog() == true)
             {
                 checkVideo = true;
-                IdentifyFaceVideoFile("H:\\Учёба\\4 курс\\Производственная практика\\FaceRecognition\\FaceRecognition\\dataset\\dataset.bin", myopenFileDialog.FileName);
+                IdentifyFaceVideoFile(myopenFileDialog.FileName);
             }
         }
 
