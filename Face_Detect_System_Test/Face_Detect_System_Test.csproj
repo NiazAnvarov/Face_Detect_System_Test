@@ -78,6 +78,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\ModelTrainingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Manager.cs" />
@@ -103,9 +107,13 @@
     <Compile Include="Pages\FaceIdentifyPage.xaml.cs">
       <DependentUpon>FaceIdentifyPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\ModelTrainingPage.xaml.cs">
+      <DependentUpon>ModelTrainingPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PersonInfo.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="PhotoItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

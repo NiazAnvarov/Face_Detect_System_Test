@@ -13,6 +13,8 @@ using Emgu.CV.Structure;
 using System.Security.Cryptography;
 using System.Windows.Controls;
 using Emgu.CV.Dnn;
+using System.Windows.Media.Imaging;
+using System.Windows;
 
 namespace Face_Detect_System_Test
 {
@@ -23,113 +25,153 @@ namespace Face_Detect_System_Test
         private FacesDetect faceDetector = new FacesDetect();
         private FaceDetectorYN _detector;
 
-        public void ModelTrain(string modelPath, string[] trainingImagesPaths, int label)
+        public void ModelTrain(string modelPath, List<Mat> Faces, int label)
         {
 
-            
-
             // Загрузка изображений для обучения
-            Mat[] trainingImages = trainingImagesPaths.Select(path => CvInvoke.Imread(path, ImreadModes.Grayscale)).ToArray();
-            Mat face = new Mat();
             List<Mat> images = new List<Mat>();
-            List<int> labels = new List<int>(); ;
+            List<int> labels = new List<int>();
+            Mat grayFace = new Mat();
 
-            foreach (Mat frame in trainingImages)
+            foreach (Mat face in Faces)
             {
+                CvInvoke.CvtColor(face, grayFace, ColorConversion.Bgr2Gray);
+                CvInvoke.EqualizeHist(grayFace, grayFace);
 
-                _detector = new FaceDetectorYN(
-                    model: "H:\\face_detection_yunet_2023mar.onnx",
-                    config: string.Empty,
-                    inputSize: new System.Drawing.Size(frame.Cols, frame.Rows),
-                    scoreThreshold: 0.9f,
-                    nmsThreshold: 0.3f,
-                    topK: 5000,
-                    backendId: Emgu.CV.Dnn.Backend.Default,
-                    targetId: Target.Cpu);
-
-                CvInvoke.CvtColor(frame, frame, ColorConversion.Gray2Bgr);
-
-                face = faceDetector.DetectFaces(frame, _detector);
-
-                if (face.Rows > 0)
-                {
-                    var faceData = new Matrix<float>(face.Rows, face.Cols);
-                    face.CopyTo(faceData);
-
-                    for (int i = 0; i < face.Rows; i++)
-                    {
-                        float confidence = faceData[i, 0];
-                        if (confidence >= 0.9f)
-                        {
-                            // Нормализация координат центра
-                            float centerX = faceData[i, 4] + faceData[i, 2] / 4;
-                            float centerY = faceData[i, 1] + faceData[i, 3] / 4;
-
-                            // Нормализация размеров
-                            float width = faceData[i, 2] * (float)1.1;
-                            float height = faceData[i, 3] * (float)1.1;
-
-                            int frameWidth = frame.Width;
-                            int frameHeight = frame.Height;
-
-                            // Преобразование в пиксели с учетом размера кадра
-                            int rectX = (int)(centerX * frameWidth - width * frameWidth / 2);
-                            int rectY = (int)(centerY * frameHeight - height * frameHeight / 2);
-                            int rectWidth = (int)(width);
-                            int rectHeight = (int)(height);
-
-                            // Ограничение по границам изображения
-                            rectX = (int)(centerX - width / 1.9);
-                            rectY = (int)(centerY - height / 3.8); 
-
-                            //Если рамка выходит за границы кадра
-                            if (rectY + rectHeight > frame.Height)
-                            {
-                                rectHeight -= rectY + rectHeight - frame.Height;
-                            }
-                            if (rectY < 0)
-                            {
-                                rectHeight += rectY;
-                                rectY = 0;
-                            }
-
-                            if (rectX + rectWidth > frame.Width)
-                            {
-                                rectWidth -= rectX + rectWidth - frame.Width;
-                            }
-                            if (rectX < 0)
-                            {
-                                rectWidth += rectX;
-                                rectX = 0;
-                            }
-
-                            // Обрезаем область лица из кадра
-                            Rectangle faceRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
-                            // Обрезаем лицо
-                            Mat faceImage = new Mat(frame, faceRect);
-
-                            // Конвертируем в черно-белое изображение
-                            Mat grayFace = new Mat();
-
-                            CvInvoke.CvtColor(faceImage, grayFace, ColorConversion.Bgr2Gray);
-                            CvInvoke.EqualizeHist(grayFace, grayFace);
-
-                            images.Add(grayFace);
-                            labels.Add(label);
-                        }
-                    }
-                }
-
-                _detector?.Dispose();
+                images.Add(grayFace);
+                labels.Add(label);
             }
-
-            
 
             if (images.Count > 0)
             {
-                
-                recognizer.Train(images.ToArray(), labels.ToArray());
+
+                //recognizer.Train(images.ToArray(), labels.ToArray());
+                recognizer.Update(images.ToArray(), labels.ToArray());
                 recognizer.Write(modelPath);
+            }
+        }
+
+        public List<Mat> FacesDetect(string vFilePath, String pathYuNetModel)
+        {
+            bool checkWH = true;
+            List<Mat> facesFromFrame = new List<Mat>();
+            Mat frame = new Mat();
+            Mat faces = new Mat();
+
+            using (VideoCapture capture = new VideoCapture(vFilePath))
+            {
+                if (!capture.IsOpened)
+                {
+                    _detector?.Dispose();
+                    return null;
+                }
+
+                // Получаем параметры видео
+
+                while (true)
+                {
+                    if (!capture.Read(frame))
+                        break;
+                    CvInvoke.Flip(frame, frame, FlipType.Horizontal);
+                    if (frame.IsEmpty)
+                        break;
+
+                    if (checkWH)
+                    {
+                        int frameWidth = frame.Width;
+                        int frameHeight = frame.Height;
+                        _detector = faceDetector.DetectorInit(pathYuNetModel, frameWidth, frameHeight);
+                        checkWH = false;
+                    }
+
+                    faces = faceDetector.DetectFaces(frame, _detector);
+
+                    try
+                    {
+                        if (faces.Rows > 0)
+                        {
+                            var facesData = new Matrix<float>(faces.Rows, faces.Cols);
+                            faces.CopyTo(facesData);
+
+                            for (int i = 0; i < faces.Rows; i++)
+                            {
+                                float confidence = facesData[i, 0];
+                                if (confidence >= 0.9f)
+                                {
+                                    // Нормализация координат центра
+                                    float centerX = facesData[i, 4] + facesData[i, 2] / 4;
+                                    float centerY = facesData[i, 1] + facesData[i, 3] / 4;
+
+                                    // Нормализация размеров
+                                    float width = facesData[i, 2] * (float)1.1;
+                                    float height = facesData[i, 3] * (float)1.1;
+
+                                    int rectX = (int)(centerX * frame.Width - width * frame.Width / 2);
+                                    int rectY = (int)(centerY * frame.Height - height * frame.Height / 2);
+                                    int rectWidth = (int)(width);
+                                    int rectHeight = (int)(height);
+
+                                    // Ограничение по границам изображения
+                                    rectX = (int)(centerX - width / 1.9);
+                                    rectY = (int)(centerY - height / 3.8);
+
+                                    // Если рамка выходит за границы кадра
+                                    if (rectY + rectHeight > frame.Height)
+                                        rectHeight -= rectY + rectHeight - frame.Height;
+                                    if (rectY < 0)
+                                    {
+                                        rectHeight += rectY;
+                                        rectY = 0;
+                                    }
+
+                                    if (rectX + rectWidth > frame.Width)
+                                        rectWidth -= rectX + rectWidth - frame.Width;
+                                    if (rectX < 0)
+                                    {
+                                        rectWidth += rectX;
+                                        rectX = 0;
+                                    }
+
+                                    Rectangle faceRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
+                                    Mat faceImage = new Mat(frame, faceRect);
+                                    facesFromFrame.Add(faceImage);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+            }
+
+            return facesFromFrame;
+        }
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
+
+        private BitmapSource BitmapSourceConvert(Mat mat)
+        {
+            if (mat.IsEmpty)
+                throw new ArgumentException("Source Mat is empty.");
+
+            using (var bitmap = mat.ToImage<Bgr, byte>().ToBitmap())
+            {
+                var hBitmap = bitmap.GetHbitmap();
+                try
+                {
+                    return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                        hBitmap,
+                        IntPtr.Zero,
+                        Int32Rect.Empty,
+                        BitmapSizeOptions.FromEmptyOptions());
+                }
+                finally
+                {
+                    DeleteObject(hBitmap);
+                }
             }
         }
 

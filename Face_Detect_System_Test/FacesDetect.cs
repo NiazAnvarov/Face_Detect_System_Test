@@ -37,8 +37,6 @@ namespace Face_Detect_System_Test
             return _detector;
         }
 
-        // Создаем распознаватель лиц
-
         public void Dispose()
         {
             _detector?.Dispose();
@@ -253,7 +251,6 @@ namespace Face_Detect_System_Test
                                 currentPerson = currentPerson.Where(p => FIOSearch.ToLower().Contains(p.LastName.ToLower()) || FIOSearch.ToLower().Contains(p.FirstName.ToLower()) || FIOSearch.ToLower().Contains(p.Patronymic.ToLower())).ToList();
                                 if (currentPerson.Count > 0)
                                 {
-
                                     foreach (var cp in currentPerson)
                                     {
                                         displayText = "";
@@ -402,6 +399,8 @@ namespace Face_Detect_System_Test
             return goodMatches > 5; // Например, мы считаем, что 5 хороших совпадений достаточно для положительного ответа
 
         }
+
+
 
     }
 }

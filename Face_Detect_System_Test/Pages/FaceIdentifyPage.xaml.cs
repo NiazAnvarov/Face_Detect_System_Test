@@ -31,7 +31,7 @@ namespace Face_Detect_System_Test.Pages
 
         // пути к моделям
         private const string pathHarCasc = "H:\\haarcascade_frontalface_alt2.xml"; //путь до каскада Хаар
-        private const string pathRecModel = "H:\\mymod.xml"; // путь до модели распознавания лиц (mymod)
+        private const string pathRecModel = "H:\\testRecMod.xml"; // путь до модели распознавания лиц (mymod)
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
 
         public bool checkWeb = true;
@@ -51,7 +51,7 @@ namespace Face_Detect_System_Test.Pages
         private FaceDetectorYN _detector;
         private FaceDetectorYN _detectorPh;
         private FacesDetect facesDetect = new FacesDetect();
-        private FacesDetect facesPhDetect = new FacesDetect();
+        
 
         public FaceIdentifyPage()
         {

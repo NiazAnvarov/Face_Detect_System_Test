@@ -23,6 +23,7 @@ namespace Face_Detect_System_Test
 
         private FaceIdentifyPage FIPage;
         private FaceDetectPage FDPage;
+        private ModelTrainingPage MTPage;
 
         //private FaceDetectorYN _detector;
         private FacesDetect facesDetect = new FacesDetect();
@@ -31,6 +32,7 @@ namespace Face_Detect_System_Test
         public MainWindow()
         {
             InitializeComponent();
+            FIPan_MouseDown(null, null);
             
         }
 
@@ -44,6 +46,10 @@ namespace Face_Detect_System_Test
             FDText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
             FDImg.Source = new BitmapImage(new Uri(@"/Images/Face_identify_dark.png", UriKind.Relative));
 
+            MTPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+            MTText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
+            MTImg.Source = new BitmapImage(new Uri(@"/Images/Model_training_dark.png", UriKind.Relative));
+
             // Проверьте, если текущая страница не является
             if (FIPage != null)
                 return; // Если уже открыта подходящая страница, то ничего не делаем
@@ -52,6 +58,10 @@ namespace Face_Detect_System_Test
                 FDPage.checkWeb = false;
                 FDPage.checkVideo = false;
                 FDPage = null;
+            }
+            if(MTPage != null)
+            {
+                MTPage = null;
             }
             FIPage = new FaceIdentifyPage();
             MainFrame.Navigate(FIPage);
@@ -68,6 +78,10 @@ namespace Face_Detect_System_Test
             FDText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
             FDImg.Source = new BitmapImage(new Uri(@"/Images/Face_identify_light.png", UriKind.Relative));
 
+            MTPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+            MTText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
+            MTImg.Source = new BitmapImage(new Uri(@"/Images/Model_training_dark.png", UriKind.Relative));
+
             // Проверьте, если текущая страница не является
             if (FDPage != null)
                 return; // Если уже открыта подходящая страница, то ничего не делаем
@@ -77,14 +91,52 @@ namespace Face_Detect_System_Test
                 FIPage.checkVideo = false;
                 FIPage = null;
             }
+            if (MTPage != null)
+            {
+                MTPage = null;
+            }
             FDPage = new FaceDetectPage();
             MainFrame.Navigate(FDPage);
             Manager.MainFrame = MainFrame;
 
         }
 
-        
+        private void MTPan_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            FIPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+            FIText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
+            FIImg.Source = new BitmapImage(new Uri(@"/Images/Face_detect_dark.png", UriKind.Relative));
 
+            FDPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+            FDText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
+            FDImg.Source = new BitmapImage(new Uri(@"/Images/Face_identify_dark.png", UriKind.Relative));
+
+            MTPan.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 110, 110, 110));
+            MTText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
+            MTImg.Source = new BitmapImage(new Uri(@"/Images/Model_training_light.png", UriKind.Relative));
+
+            // Проверьте, если текущая страница не является ModelTrainingPage
+            if (MTPage != null)
+                return; // Если уже открыта подходящая страница, то ничего не делаем
+            if (FIPage != null)
+            {
+                FIPage.checkWeb = false;
+                FIPage.checkVideo = false;
+                FIPage = null;
+            }
+            if (FDPage != null)
+            {
+                FDPage.checkWeb = false;
+                FDPage.checkVideo = false;
+                FDPage = null;
+            }
+
+
+            // Навигация на ModelTrainingPage
+            MTPage = new ModelTrainingPage();
+            MainFrame.Navigate(MTPage);
+            Manager.MainFrame = MainFrame;
+        }
 
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -94,12 +146,14 @@ namespace Face_Detect_System_Test
 
         }
 
-        private void ModelTren_Click(object sender, RoutedEventArgs e)
-        {
-            // Подготовка данных для обучения
-            string[] trainingImagesPaths = Directory.GetFiles("training_folder", "*.jpg");
-            modelTr.ModelTrain("H:\\mymod.xml", trainingImagesPaths, 0);
-            Console.WriteLine("Модель обучена!");
-        }
+        //private void ModelTren_Click(object sender, RoutedEventArgs e)
+        //{
+        //    // Подготовка данных для обучения
+        //    string[] trainingImagesPaths = Directory.GetFiles("training_folder", "*.jpg");
+        //    modelTr.ModelTrain("H:\\mymod.xml", trainingImagesPaths, 0);
+        //    Console.WriteLine("Модель обучена!");
+        //}
+
+        
     }
 }

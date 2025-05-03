@@ -32,7 +32,7 @@ namespace Face_Detect_System_Test.Pages
     {
 
         // пути к моделям
-        private const string pathRecModel = "H:\\mymod.xml"; // путь до модели распознавания лиц (mymod)
+        private const string pathRecModel = "H:\\testRecMod.xml"; // путь до модели распознавания лиц (mymod)
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
 
         public bool checkWeb = true;
