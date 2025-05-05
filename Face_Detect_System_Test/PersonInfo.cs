@@ -29,6 +29,5 @@ namespace Face_Detect_System_Test
                 return Birthday.ToShortDateString();
             }
         }
-
     }
 }

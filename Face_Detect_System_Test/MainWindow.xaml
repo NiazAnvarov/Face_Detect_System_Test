@@ -15,7 +15,7 @@
         <StackPanel Orientation="Vertical" Grid.Column="0" Background="#E3E3E3">
             <StackPanel Orientation="Horizontal" Margin="20 40 0 0" >
                 <Image Source="/Images/Icon.png" Width="70"/>
-                <TextBlock Text="Facial recognition system" Margin="10 0 0 0"  TextWrapping="Wrap" Width="200" TextAlignment="Center" VerticalAlignment="Center" FontSize="25"/>
+                <TextBlock Text="Face recognition system" Margin="10 0 0 0"  TextWrapping="Wrap" Width="200" TextAlignment="Center" VerticalAlignment="Center" FontSize="25"/>
             </StackPanel>
             <StackPanel Name="FIPan" MouseDown="FIPan_MouseDown" Orientation="Horizontal" Margin="20 80 0 0">
                 <Image Name="FIImg" Source="/Images/Face_detect_dark.png" Width="50" Height="50"/>

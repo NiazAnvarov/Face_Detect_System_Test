@@ -15,16 +15,24 @@
         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
             <TextBlock Text="Данные человека:" FontSize="25" HorizontalAlignment="Left" Margin="5 20 0 0"/>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="ФИО" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
-                <TextBox Name="PersonFIO" Margin="5" FontSize="25" Width="300" Height="50"/>
+                <TextBlock Text="Фамилия" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
+                <TextBox Text="{Binding LastName}" Name="PersonLastName" Margin="5" FontSize="25" Width="200" Height="50"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Имя" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
+                <TextBox Text="{Binding FirstName}" Name="PersonFirstName" Margin="5" FontSize="25" Width="200" Height="50"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Отчество" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
+                <TextBox Text="{Binding Patronymic}" Name="PersonPatronymic" Margin="5" FontSize="25" Width="200" Height="50"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Дата рождения" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
-                <TextBox Name="PersonBirthday" Margin="5" FontSize="25" Width="300" Height="50"/>
+                <DatePicker Name="BirthdayDP" IsDropDownOpen="True" SelectedDateFormat="Short" />
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Деятельность" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
-                <TextBox Name="PersonActivity" Margin="5" FontSize="25" Width="300" Height="50"/>
+                <TextBox Text="{Binding Activity}" Margin="5" FontSize="25" Width="300" Height="50"/>
             </StackPanel>
             <Button Name="VideoLoadBtn" Click="VideoLoadBtn_Click" Content="Загрузить видеофайл" HorizontalAlignment="Left" FontSize="25" Width="300" Height="50" Margin="20" Background="#BFBFBF"/>
             <Button Name="PersonAddBtn" Click="PersonAddBtn_Click" Content="Добавить в базу данных" HorizontalAlignment="Left" FontSize="25" Width="300" Height="50" Margin="20" Background="#BFBFBF"/>

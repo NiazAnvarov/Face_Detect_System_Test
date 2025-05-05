@@ -21,7 +21,8 @@ namespace Face_Detect_System_Test
     internal class FacesDetect
     {
 
-        private FaceDetectorYN _detector;        
+        private FaceDetectorYN _detector;
+        private int Distance = 80;
 
         public FaceDetectorYN DetectorInit(string modelPath, int width, int height)
         {
@@ -123,7 +124,7 @@ namespace Face_Detect_System_Test
                             var result = recognizer.Predict(grayFace);
                             Console.WriteLine(result.Distance);
 
-                            if (result.Distance < 70)
+                            if (result.Distance < Distance)
                             {
                                 string displayText = "";
                                 int predictedLabel = result.Label;
@@ -243,7 +244,7 @@ namespace Face_Detect_System_Test
                             var result = recognizer.Predict(grayFace);
                             Console.WriteLine(result.Distance);
 
-                            if (result.Distance < 70)
+                            if (result.Distance < Distance)
                             {
                                 string displayText = "";
                                 int predictedLabel = result.Label;

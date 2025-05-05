@@ -32,53 +32,17 @@ namespace Face_Detect_System_Test.Pages
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
         private List<Mat> faces = new List<Mat>();
         private string filePath;
+        private PersonInfo currentPerson = new PersonInfo();
 
         public ModelTrainingPage()
         {
             InitializeComponent();
 
-            
-            
-            
-            
-            //Console.WriteLine(faces.Count());
-            //foreach (Mat face in faces)
-            //{
-            //    AddPhoto(BitmapSourceConvert(face));
-            //    Console.WriteLine("1");
-            //}
-
-        }
-
-        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
-        public static extern bool DeleteObject(IntPtr hObject);
-
-        private BitmapSource BitmapSourceConvert(Mat mat)
-        {
-            if (mat.IsEmpty)
-                throw new ArgumentException("Source Mat is empty.");
-
-            using (var bitmap = mat.ToImage<Bgr, byte>().ToBitmap())
-            {
-                var hBitmap = bitmap.GetHbitmap();
-                try
-                {
-                    return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                        hBitmap,
-                        IntPtr.Zero,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                }
-                finally
-                {
-                    DeleteObject(hBitmap);
-                }
-            }
-        }
-
-        private void AddPhoto(BitmapSource bitmap)
-        {
-            Photos.Add(new PhotoItem(bitmap));
+            BirthdayDP.SelectedDate = new DateTime(2024, 1, 1);
+            PersonLastName.PreviewTextInput += new TextCompositionEventHandler(PersonLastName_PreviewTextInput);
+            PersonFirstName.PreviewTextInput += new TextCompositionEventHandler(PersonFirstName_PreviewTextInput);
+            PersonPatronymic.PreviewTextInput += new TextCompositionEventHandler(PersonPatronymic_PreviewTextInput);
+            DataContext = currentPerson;
         }
 
         private void VideoLoadBtn_Click(object sender, RoutedEventArgs e)
@@ -120,8 +84,77 @@ namespace Face_Detect_System_Test.Pages
 
         private void PersonAddBtn_Click(object sender, RoutedEventArgs e)
         {
-            faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
-            MDTrain.ModelTrain("H:\\testRecMod.xml", faces, 0);
+
+            StringBuilder error = new StringBuilder();
+            if (string.IsNullOrWhiteSpace(currentPerson.LastName))
+            {
+                error.AppendLine("Введите Фамилию!");
+            }
+            if (string.IsNullOrWhiteSpace(currentPerson.FirstName))
+            {
+                error.AppendLine("Введите Имя!");
+            }
+            if (string.IsNullOrWhiteSpace(currentPerson.Activity))
+            {
+                error.AppendLine("Введите деятельность!");
+            }
+            if(filePath ==  null)
+            {
+                error.AppendLine("Загрузите видеофайл!");
+            }
+            if(error.Length > 0)
+            {
+                MessageBox.Show(error.ToString());
+                return;
+            }
+            else
+            {
+                try
+                {
+                    currentPerson.Birthday = (DateTime)BirthdayDP.SelectedDate;
+                    int Label = PersonInfoForFaceRecEntities.GetContext().PersonInfo.OrderByDescending(p => p.ID).FirstOrDefault().ID + 1;
+                    if (currentPerson.ID == 0)
+                    {
+                        PersonInfoForFaceRecEntities.GetContext().PersonInfo.Add(currentPerson);
+                    }
+
+                    PersonInfoForFaceRecEntities.GetContext().SaveChanges();
+                    MessageBox.Show("Информация добавлена в базу данных!");
+                    faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
+                    MDTrain.ModelTrain("H:\\testRecMod.xml", faces, Label);
+                    MessageBox.Show("Модель обучена!");
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show("Ошибка при добавлении!");
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+            
+        }
+
+        private void PersonLastName_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!Char.IsLetter(e.Text[0]))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void PersonFirstName_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!Char.IsLetter(e.Text[0]))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void PersonPatronymic_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!Char.IsLetter(e.Text[0]))
+            {
+                e.Handled = true;
+            }
         }
     }
 }

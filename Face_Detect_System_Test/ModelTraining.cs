@@ -44,7 +44,7 @@ namespace Face_Detect_System_Test
 
             if (images.Count > 0)
             {
-
+                recognizer.Read(modelPath);
                 //recognizer.Train(images.ToArray(), labels.ToArray());
                 recognizer.Update(images.ToArray(), labels.ToArray());
                 recognizer.Write(modelPath);
