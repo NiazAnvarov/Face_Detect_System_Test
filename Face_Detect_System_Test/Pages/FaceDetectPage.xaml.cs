@@ -32,7 +32,7 @@ namespace Face_Detect_System_Test.Pages
     {
 
         // пути к моделям
-        private const string pathRecModel = "H:\\testRecMod.xml"; // путь до модели распознавания лиц (mymod)
+        private string pathRecModel = Manager.RecognizerModelPath; // путь до модели распознавания лиц (mymod)
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
 
         public bool checkWeb = true;
@@ -46,7 +46,6 @@ namespace Face_Detect_System_Test.Pages
 
 
         // Создаем распознаватель лиц
-        private LBPHFaceRecognizer recognizer = new LBPHFaceRecognizer();
         private FaceDetectorYN _detector;
         private FacesDetect facesDetect = new FacesDetect();
 
@@ -60,7 +59,6 @@ namespace Face_Detect_System_Test.Pages
             VideoFile.Visibility = Visibility.Hidden;
             WebCamStart.IsEnabled = true;
             VideoFileStart.IsEnabled = true;
-            recognizer.Read(pathRecModel);
             
         }
 
@@ -70,7 +68,7 @@ namespace Face_Detect_System_Test.Pages
         {
             using (VideoCapture capture = new VideoCapture(0))
             {
-                if (recognizer == null)
+                if (Manager.recognizer == null)
                 {
                     // Модель не была загружена правильно
                     throw new Exception("Модель не была загружена или обучена.");
@@ -108,7 +106,7 @@ namespace Face_Detect_System_Test.Pages
 
                     var perInf = new List<PersonInfo>();
 
-                    frame = facesDetect.FaceRecognition(frame, faces, recognizer, ref perInf);
+                    frame = facesDetect.FaceRecognition(frame, faces, Manager.recognizer, ref perInf);
 
                     foreach (PersonInfo cp in perInf)
                     {
@@ -167,7 +165,7 @@ namespace Face_Detect_System_Test.Pages
 
                     var perInf = new List<PersonInfo>();
 
-                    frame = facesDetect.FaceRecognition(frame, faces, recognizer, ref perInf);
+                    frame = facesDetect.FaceRecognition(frame, faces, Manager.recognizer, ref perInf);
 
                     foreach (PersonInfo cp in perInf)
                     {

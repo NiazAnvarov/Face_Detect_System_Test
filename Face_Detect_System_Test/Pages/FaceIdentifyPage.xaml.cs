@@ -31,7 +31,7 @@ namespace Face_Detect_System_Test.Pages
 
         // пути к моделям
         private const string pathHarCasc = "H:\\haarcascade_frontalface_alt2.xml"; //путь до каскада Хаар
-        private const string pathRecModel = "H:\\testRecMod.xml"; // путь до модели распознавания лиц (mymod)
+        
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
 
         public bool checkWeb = true;
@@ -47,7 +47,7 @@ namespace Face_Detect_System_Test.Pages
 
         // Создаем распознаватель лиц
         private CascadeClassifier _faceCascade = new CascadeClassifier(pathHarCasc);
-        private LBPHFaceRecognizer recognizer = new LBPHFaceRecognizer();
+        
         private FaceDetectorYN _detector;
         private FaceDetectorYN _detectorPh;
         private FacesDetect facesDetect = new FacesDetect();
@@ -69,7 +69,7 @@ namespace Face_Detect_System_Test.Pages
             }
 
 
-            recognizer.Read(pathRecModel);
+            
         }
 
         public static ImageSource BitmapToImageSource(Bitmap bitmap)
@@ -97,7 +97,7 @@ namespace Face_Detect_System_Test.Pages
             using (VideoCapture capture = new VideoCapture(0))
             {
 
-                if (recognizer == null)
+                if (Manager.recognizer == null)
                 {
                     // Модель не была загружена правильно
                     throw new Exception("Модель не была загружена или обучена.");
@@ -142,7 +142,7 @@ namespace Face_Detect_System_Test.Pages
                     else
                     {
                         var perInf = new List<PersonInfo>();
-                        frame = facesDetect.FaceIdentify(frame, faces, recognizer, ref perInf, FIOSearch.Text);
+                        frame = facesDetect.FaceIdentify(frame, faces, Manager.recognizer, ref perInf, FIOSearch.Text);
                     }
 
                     FIOutputImage.Source = BitmapSourceConvert(frame);
@@ -200,7 +200,7 @@ namespace Face_Detect_System_Test.Pages
                     else
                     {
                         var perInf = new List<PersonInfo>();
-                        frame = facesDetect.FaceIdentify(frame, faces, recognizer, ref perInf, FIOSearch.Text);
+                        frame = facesDetect.FaceIdentify(frame, faces, Manager.recognizer, ref perInf, FIOSearch.Text);
                     }
 
                     FIOutputImage.Source = BitmapSourceConvert(frame);

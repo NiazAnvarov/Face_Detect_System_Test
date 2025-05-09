@@ -24,6 +24,7 @@ namespace Face_Detect_System_Test
         private FaceIdentifyPage FIPage;
         private FaceDetectPage FDPage;
         private ModelTrainingPage MTPage;
+        private readonly Manager _settingsManager;
 
         //private FaceDetectorYN _detector;
         private FacesDetect facesDetect = new FacesDetect();
@@ -32,8 +33,28 @@ namespace Face_Detect_System_Test
         public MainWindow()
         {
             InitializeComponent();
-            FIPan_MouseDown(null, null);
             
+            _settingsManager = new Manager();
+
+            //Загружаем сохрненный путь при запуске
+            string savedPath = _settingsManager.LoadModelPath();
+            if (!string.IsNullOrEmpty(savedPath))
+            {
+                FIPan.IsEnabled = true;
+                FDPan.IsEnabled = true;
+                FIPan_MouseDown(null, null);
+                ModelPathTextBox.Text = savedPath;
+                Manager.RecognizerModelPath = savedPath;
+                Manager.recognizer.Read(Manager.RecognizerModelPath);
+            }
+            else
+            {
+                
+                ModelPathTextBox.Text = "Модель не загружена";
+                FIPan.IsEnabled = false;
+                FDPan.IsEnabled = false;
+            }
+
         }
 
         private void FIPan_MouseDown(object sender, MouseButtonEventArgs e)
@@ -146,14 +167,24 @@ namespace Face_Detect_System_Test
 
         }
 
-        //private void ModelTren_Click(object sender, RoutedEventArgs e)
-        //{
-        //    // Подготовка данных для обучения
-        //    string[] trainingImagesPaths = Directory.GetFiles("training_folder", "*.jpg");
-        //    modelTr.ModelTrain("H:\\mymod.xml", trainingImagesPaths, 0);
-        //    Console.WriteLine("Модель обучена!");
-        //}
+        private void RecModelLoadBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                ModelPathTextBox.Text = openFileDialog.FileName;
+                _settingsManager.SaveModelPath(openFileDialog.FileName);
+                Manager.RecognizerModelPath = openFileDialog.FileName;
+                FIPan.IsEnabled = true;
+                FDPan.IsEnabled = true;
+                Manager.recognizer.Read(Manager.RecognizerModelPath);
+            }
+            else
+            {
+                MessageBox.Show("Не удалось загрузить файл!");
+            }
+        }
 
-        
+
     }
 }

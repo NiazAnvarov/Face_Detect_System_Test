@@ -30,6 +30,10 @@
                 <TextBlock Name="MTText" Text="Обучение модели" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" FontSize="20"/>
             </StackPanel>
         </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <Button Name="RecModelLoadBtn" Content="Модель распознавания лиц" Click="RecModelLoadBtn_Click"  Width="270" Margin="5" FontSize="20" />
+            <TextBlock Name="ModelPathTextBox" HorizontalAlignment="Center" FontSize="20" Margin="0 0 0 50"/>
+        </StackPanel>
         <Frame Name="MainFrame" Grid.Column="2" NavigationUIVisibility="Hidden"/>
     </Grid>
     

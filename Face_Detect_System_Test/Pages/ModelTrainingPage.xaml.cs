@@ -12,6 +12,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Emgu.CV.Features2D;
@@ -19,6 +20,7 @@ using System.Windows.Media.Media3D;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.IO;
+using Microsoft.Win32;
 
 namespace Face_Detect_System_Test.Pages
 {
@@ -37,7 +39,23 @@ namespace Face_Detect_System_Test.Pages
         public ModelTrainingPage()
         {
             InitializeComponent();
-
+            var allPerson = PersonInfoForFaceRecEntities.GetContext().PersonInfo.Select(p =>  p.LastName + " " + p.FirstName + " " + p.Patronymic).ToList();
+            foreach (var person in allPerson)
+            {
+                AllPersonComboBox.Items.Add(person);
+            }
+            //faces = MDTrain.FacesDetect("C:\\Users\\niaza\\Pictures\\Camera Roll\\WIN_20250503_16_09_43_Pro.mp4", pathYuNetModel);
+            //MDTrain.ModelTrain("H:\\testModelForRec.xml", faces, 0);
+            if (string.IsNullOrEmpty(Manager.RecognizerModelPath))
+            {
+                ModelDirectPathTextBox.Visibility = Visibility.Visible;
+                ModelDirectoryBtn.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ModelDirectPathTextBox.Visibility = Visibility.Hidden;
+                ModelDirectoryBtn.Visibility = Visibility.Hidden;
+            }
             BirthdayDP.SelectedDate = new DateTime(2024, 1, 1);
             PersonLastName.PreviewTextInput += new TextCompositionEventHandler(PersonLastName_PreviewTextInput);
             PersonFirstName.PreviewTextInput += new TextCompositionEventHandler(PersonFirstName_PreviewTextInput);
@@ -113,16 +131,26 @@ namespace Face_Detect_System_Test.Pages
                 {
                     currentPerson.Birthday = (DateTime)BirthdayDP.SelectedDate;
                     int Label = PersonInfoForFaceRecEntities.GetContext().PersonInfo.OrderByDescending(p => p.ID).FirstOrDefault().ID + 1;
-                    if (currentPerson.ID == 0)
-                    {
-                        PersonInfoForFaceRecEntities.GetContext().PersonInfo.Add(currentPerson);
-                    }
+                    var allPerson = PersonInfoForFaceRecEntities.GetContext().PersonInfo.ToList();
+                    allPerson = allPerson.Where(p => p.LastName == currentPerson.LastName & p.FirstName == currentPerson.FirstName & p.Patronymic == currentPerson.Patronymic).ToList();
 
-                    PersonInfoForFaceRecEntities.GetContext().SaveChanges();
-                    MessageBox.Show("Информация добавлена в базу данных!");
-                    faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
-                    MDTrain.ModelTrain("H:\\testRecMod.xml", faces, Label);
-                    MessageBox.Show("Модель обучена!");
+                    if (allPerson.Count == 0)
+                    {
+                        if (currentPerson.ID == 0)
+                        {
+                            PersonInfoForFaceRecEntities.GetContext().PersonInfo.Add(currentPerson);
+                        }
+
+                        PersonInfoForFaceRecEntities.GetContext().SaveChanges();
+                        MessageBox.Show("Информация добавлена в базу данных!");
+                        faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
+                        MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, Label);
+                        MessageBox.Show("Модель обучена!");
+                    }
+                    else
+                    {
+                        MessageBox.Show("В базе данных уже существует информация о таком человеке!");
+                    }
                 }
                 catch(Exception ex)
                 {
@@ -155,6 +183,20 @@ namespace Face_Detect_System_Test.Pages
             {
                 e.Handled = true;
             }
+        }
+
+        private void ModelTrainBtn_Click(object sender, RoutedEventArgs e)
+        {
+            faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
+            MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, AllPersonComboBox.SelectedIndex);
+            MessageBox.Show("Модель обучена!");
+
+        }
+
+        private void ModelDirectoryBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+            var myopenDirectoryDialog = new System.Windows.Fo;
         }
     }
 }

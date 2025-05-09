@@ -21,7 +21,7 @@ namespace Face_Detect_System_Test
     internal class ModelTraining
     {
 
-        private LBPHFaceRecognizer recognizer = new LBPHFaceRecognizer();
+        
         private FacesDetect faceDetector = new FacesDetect();
         private FaceDetectorYN _detector;
 
@@ -44,10 +44,10 @@ namespace Face_Detect_System_Test
 
             if (images.Count > 0)
             {
-                recognizer.Read(modelPath);
+                //recognizer.Read(modelPath);
                 //recognizer.Train(images.ToArray(), labels.ToArray());
-                recognizer.Update(images.ToArray(), labels.ToArray());
-                recognizer.Write(modelPath);
+                Manager.recognizer.Update(images.ToArray(), labels.ToArray());
+                Manager.recognizer.Write(modelPath);
             }
         }
 

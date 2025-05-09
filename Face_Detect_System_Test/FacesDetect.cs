@@ -22,7 +22,7 @@ namespace Face_Detect_System_Test
     {
 
         private FaceDetectorYN _detector;
-        private int Distance = 80;
+        private int Distance = 65;
 
         public FaceDetectorYN DetectorInit(string modelPath, int width, int height)
         {
@@ -132,7 +132,7 @@ namespace Face_Detect_System_Test
                                 foreach (var cp in currentPerson)
                                 {
                                     displayText = "";
-                                    displayText = result.Distance + cp.LastName.ToString() + " " + cp.FirstName.ToString() + " " + cp.Patronymic.ToString();
+                                    displayText = cp.LastName.ToString() + " " + cp.FirstName.ToString() + " " + cp.Patronymic.ToString();
                                     perInfo.Add(cp);
                                 }
 
@@ -255,7 +255,7 @@ namespace Face_Detect_System_Test
                                     foreach (var cp in currentPerson)
                                     {
                                         displayText = "";
-                                        displayText = result.Distance + cp.LastName.ToString() + " " + cp.FirstName.ToString() + " " + cp.Patronymic.ToString();
+                                        displayText = cp.LastName.ToString() + " " + cp.FirstName.ToString() + " " + cp.Patronymic.ToString();
                                         perInfo.Add(cp);
                                     }
 
