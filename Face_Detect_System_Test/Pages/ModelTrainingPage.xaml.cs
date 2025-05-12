@@ -21,6 +21,8 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.IO;
 using Microsoft.Win32;
+using System.Windows.Threading;
+//using System.Windows.Forms;
 
 namespace Face_Detect_System_Test.Pages
 {
@@ -35,6 +37,7 @@ namespace Face_Detect_System_Test.Pages
         private List<Mat> faces = new List<Mat>();
         private string filePath;
         private PersonInfo currentPerson = new PersonInfo();
+        private string selectedPath;
 
         public ModelTrainingPage()
         {
@@ -48,12 +51,12 @@ namespace Face_Detect_System_Test.Pages
             //MDTrain.ModelTrain("H:\\testModelForRec.xml", faces, 0);
             if (string.IsNullOrEmpty(Manager.RecognizerModelPath))
             {
-                ModelDirectPathTextBox.Visibility = Visibility.Visible;
+                ModelDirectoryPathTextBlock.Visibility = Visibility.Visible;
                 ModelDirectoryBtn.Visibility = Visibility.Visible;
             }
             else
             {
-                ModelDirectPathTextBox.Visibility = Visibility.Hidden;
+                ModelDirectoryPathTextBlock.Visibility = Visibility.Hidden;
                 ModelDirectoryBtn.Visibility = Visibility.Hidden;
             }
             BirthdayDP.SelectedDate = new DateTime(2024, 1, 1);
@@ -143,8 +146,12 @@ namespace Face_Detect_System_Test.Pages
 
                         PersonInfoForFaceRecEntities.GetContext().SaveChanges();
                         MessageBox.Show("Информация добавлена в базу данных!");
+                        TrainingProcessStackPanel.Visibility = Visibility.Visible;
+                        TrainingProcessText.Visibility = Visibility.Visible;
                         faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
                         MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, Label);
+                        TrainingProcessStackPanel.Visibility = Visibility.Hidden;
+                        TrainingProcessText.Visibility = Visibility.Hidden;
                         MessageBox.Show("Модель обучена!");
                     }
                     else
@@ -185,18 +192,76 @@ namespace Face_Detect_System_Test.Pages
             }
         }
 
-        private void ModelTrainBtn_Click(object sender, RoutedEventArgs e)
+        private async void ModelTrainBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(Manager.RecognizerModelPath))
+            {
+                if (selectedPath != null)
+                {
+                    Manager.RecognizerModelPath = selectedPath + "recModel.xml";
+                }
+                else
+                {
+                    MessageBox.Show("Выберите папку куда будет сохранена модель!");
+                    return;
+                }
+            }
+            if(AllPersonComboBox.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите человека из списка!");
+                return;
+            }
+            if (filePath == null)
+            {
+                MessageBox.Show("Загрузите видеофайл!");
+                return;
+            }
+            
+            TrainingProcessStackPanel.Visibility = Visibility.Visible;
+            TrainingProcessText.Visibility = Visibility.Visible;
+            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
             faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
             MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, AllPersonComboBox.SelectedIndex);
+            TrainingProcessStackPanel.Visibility = Visibility.Hidden;
+            TrainingProcessText.Visibility = Visibility.Hidden;
             MessageBox.Show("Модель обучена!");
-
         }
 
         private void ModelDirectoryBtn_Click(object sender, RoutedEventArgs e)
         {
 
-            var myopenDirectoryDialog = new System.Windows.Fo;
+            System.Windows.Forms.FolderBrowserDialog myFolderDialog = new System.Windows.Forms.FolderBrowserDialog();
+
+            // Настройка диалога
+            myFolderDialog.Description = "Выберите папку";
+            
+
+            // Показ диалога
+            if (myFolderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                if (myFolderDialog.SelectedPath != null)
+                {
+                    // Проверяем наличие русских букв или пробелов
+                    bool containsRussianOrSpace = myFolderDialog.SelectedPath.Any(c =>
+                        char.IsLetter(c) && (c > 127 ||
+                        (c >= 0x0400 && c <= 0x04FF)) ||  // Диапазон кириллицы
+                        char.IsWhiteSpace(c));
+
+                    if (containsRussianOrSpace)
+                    {
+                        MessageBox.Show("Путь не должен содержать русские буквы и пробелы!",
+                            "Ошибка", (MessageBoxButton)System.Windows.Forms.MessageBoxButtons.OK, (MessageBoxImage)System.Windows.Forms.MessageBoxIcon.Error);
+                        return;
+                    }
+                    selectedPath = myFolderDialog.SelectedPath;
+                    ModelDirectoryPathTextBlock.Text = selectedPath;
+
+                }
+                else
+                {
+                    MessageBox.Show("Произошла ошибка при выборе папки!");
+                }
+            }
         }
     }
 }

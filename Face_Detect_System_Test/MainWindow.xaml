@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Face_Detect_System_Test"
         mc:Ignorable="d"
-        Title="Face recognition system" Icon="/Images/Icon.png" Width="1920" Height="1080" MinWidth="1920" MinHeight="1080">
+        Title="Face recognition system" Icon="/Images/Icon.png" Width="1920" Height="1080" MinWidth="1000" MinHeight="700">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
 

@@ -15,6 +15,7 @@ using System.IO;
 using Face_Detect_System_Test.Pages;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Linq;
 
 namespace Face_Detect_System_Test
 {
@@ -43,9 +44,16 @@ namespace Face_Detect_System_Test
                 FIPan.IsEnabled = true;
                 FDPan.IsEnabled = true;
                 FIPan_MouseDown(null, null);
-                ModelPathTextBox.Text = savedPath;
-                Manager.RecognizerModelPath = savedPath;
-                Manager.recognizer.Read(Manager.RecognizerModelPath);
+                try
+                {
+                    Manager.recognizer.Read(savedPath);
+                    ModelPathTextBox.Text = Path.GetFileName(savedPath);
+                    Manager.RecognizerModelPath = savedPath;
+                }
+                catch
+                {
+                    MessageBox.Show("Ошибка при загрузке модели!");
+                }
             }
             else
             {
@@ -170,21 +178,49 @@ namespace Face_Detect_System_Test
         private void RecModelLoadBtn_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
+
+            try
             {
-                ModelPathTextBox.Text = openFileDialog.FileName;
-                _settingsManager.SaveModelPath(openFileDialog.FileName);
-                Manager.RecognizerModelPath = openFileDialog.FileName;
-                FIPan.IsEnabled = true;
-                FDPan.IsEnabled = true;
-                Manager.recognizer.Read(Manager.RecognizerModelPath);
+                if (openFileDialog.ShowDialog() == true)
+                {
+
+                    if (!ValidateFilePath(openFileDialog.FileName))
+                    {
+                        MessageBox.Show("Путь не должен содержать русские буквы и пробелы!",
+                            "Ошибка", (MessageBoxButton)System.Windows.Forms.MessageBoxButtons.OK, (MessageBoxImage)System.Windows.Forms.MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    Manager.recognizer.Read(openFileDialog.FileName);
+                    ModelPathTextBox.Text = Path.GetFileName(openFileDialog.FileName);
+                    _settingsManager.SaveModelPath(openFileDialog.FileName);
+                    Manager.RecognizerModelPath = openFileDialog.FileName;
+                    FIPan.IsEnabled = true;
+                    FDPan.IsEnabled = true;
+
+
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось загрузить файл!");
+                }
             }
-            else
+            catch
             {
-                MessageBox.Show("Не удалось загрузить файл!");
+                MessageBox.Show("Ошибка при загрузке модели!");
             }
         }
 
+        // Метод для проверки пути
+        private bool ValidateFilePath(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return false;
 
+            return !path.Any(c =>
+                char.IsLetter(c) && (c > 127 ||
+                (c >= 0x0400 && c <= 0x04FF)) ||  // Диапазон кириллицы
+                char.IsWhiteSpace(c));
+        }
     }
 }
