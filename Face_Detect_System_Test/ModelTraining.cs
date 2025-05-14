@@ -21,12 +21,13 @@ namespace Face_Detect_System_Test
     internal class ModelTraining
     {
 
-        
+        private readonly Manager _settingsManager = new Manager();
         private FacesDetect faceDetector = new FacesDetect();
         private FaceDetectorYN _detector;
 
         public void ModelTrain(string modelPath, List<Mat> Faces, int label)
         {
+
 
             // Загрузка изображений для обучения
             List<Mat> images = new List<Mat>();
@@ -44,10 +45,22 @@ namespace Face_Detect_System_Test
 
             if (images.Count > 0)
             {
-                //recognizer.Read(modelPath);
-                //recognizer.Train(images.ToArray(), labels.ToArray());
-                Manager.recognizer.Update(images.ToArray(), labels.ToArray());
-                Manager.recognizer.Write(modelPath);
+                if (Manager.RecognizerModelPath != null)
+                {
+                    //recognizer.Read(modelPath);
+                    //recognizer.Train(images.ToArray(), labels.ToArray());
+                    Manager.recognizer.Update(images.ToArray(), labels.ToArray());
+                    Manager.recognizer.Write(modelPath);
+                }
+                else
+                {
+
+                    modelPath = "H:\\newRecMod.xml";
+                    Manager.recognizer.Train(images.ToArray(), labels.ToArray());
+                    Manager.recognizer.Write(modelPath);
+                    Manager.RecognizerModelPath = modelPath;
+                    _settingsManager.SaveModelPath(modelPath);
+                }
             }
         }
 

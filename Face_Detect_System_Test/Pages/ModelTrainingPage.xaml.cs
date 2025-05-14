@@ -22,7 +22,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using Microsoft.Win32;
 using System.Windows.Threading;
-//using System.Windows.Forms;
 
 namespace Face_Detect_System_Test.Pages
 {
@@ -31,34 +30,27 @@ namespace Face_Detect_System_Test.Pages
     /// </summary>
     public partial class ModelTrainingPage : Page
     {
-        public ObservableCollection<PhotoItem> Photos { get; } = new ObservableCollection<PhotoItem>();
+        private AesEncryption aesEncryption = new AesEncryption(Manager.key, Manager.iv);
+        //public ObservableCollection<PhotoItem> Photos { get; } = new ObservableCollection<PhotoItem>();
         private ModelTraining MDTrain = new ModelTraining();
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
         private List<Mat> faces = new List<Mat>();
         private string filePath;
         private PersonInfo currentPerson = new PersonInfo();
-        private string selectedPath;
 
         public ModelTrainingPage()
         {
             InitializeComponent();
-            var allPerson = PersonInfoForFaceRecEntities.GetContext().PersonInfo.Select(p =>  p.LastName + " " + p.FirstName + " " + p.Patronymic).ToList();
+            var allPerson = PersonInfoForFaceRecEntities.GetContext().PersonInfo.ToList();
+            string decryptPerson;
             foreach (var person in allPerson)
             {
-                AllPersonComboBox.Items.Add(person);
+                decryptPerson = aesEncryption.Decrypt(person.LastName) + " " + aesEncryption.Decrypt(person.FirstName) + " " + aesEncryption.Decrypt(person.Patronymic);
+                AllPersonComboBox.Items.Add(decryptPerson);
             }
-            //faces = MDTrain.FacesDetect("C:\\Users\\niaza\\Pictures\\Camera Roll\\WIN_20250503_16_09_43_Pro.mp4", pathYuNetModel);
-            //MDTrain.ModelTrain("H:\\testModelForRec.xml", faces, 0);
-            if (string.IsNullOrEmpty(Manager.RecognizerModelPath))
-            {
-                ModelDirectoryPathTextBlock.Visibility = Visibility.Visible;
-                ModelDirectoryBtn.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                ModelDirectoryPathTextBlock.Visibility = Visibility.Hidden;
-                ModelDirectoryBtn.Visibility = Visibility.Hidden;
-            }
+
+            AddNewPersonBlock.Visibility = Visibility.Hidden;
+
             BirthdayDP.SelectedDate = new DateTime(2024, 1, 1);
             PersonLastName.PreviewTextInput += new TextCompositionEventHandler(PersonLastName_PreviewTextInput);
             PersonFirstName.PreviewTextInput += new TextCompositionEventHandler(PersonFirstName_PreviewTextInput);
@@ -82,7 +74,6 @@ namespace Face_Detect_System_Test.Pages
                             // Проверяем существует ли файл
                             if (File.Exists(filePath))
                             {
-                                // Здесь можно использовать filePath для дальнейшей работы с файлом
                                 System.Windows.MessageBox.Show($"Выбранный файл: {filePath}");
                             }
                             else
@@ -115,14 +106,7 @@ namespace Face_Detect_System_Test.Pages
             {
                 error.AppendLine("Введите Имя!");
             }
-            if (string.IsNullOrWhiteSpace(currentPerson.Activity))
-            {
-                error.AppendLine("Введите деятельность!");
-            }
-            if(filePath ==  null)
-            {
-                error.AppendLine("Загрузите видеофайл!");
-            }
+
             if(error.Length > 0)
             {
                 MessageBox.Show(error.ToString());
@@ -135,7 +119,10 @@ namespace Face_Detect_System_Test.Pages
                     currentPerson.Birthday = (DateTime)BirthdayDP.SelectedDate;
                     int Label = PersonInfoForFaceRecEntities.GetContext().PersonInfo.OrderByDescending(p => p.ID).FirstOrDefault().ID + 1;
                     var allPerson = PersonInfoForFaceRecEntities.GetContext().PersonInfo.ToList();
-                    allPerson = allPerson.Where(p => p.LastName == currentPerson.LastName & p.FirstName == currentPerson.FirstName & p.Patronymic == currentPerson.Patronymic).ToList();
+                    currentPerson.LastName = aesEncryption.Encrypt(currentPerson.LastName);
+                    currentPerson.FirstName = aesEncryption.Encrypt(currentPerson.FirstName);
+                    currentPerson.Patronymic = aesEncryption.Encrypt(currentPerson.Patronymic);
+                    allPerson = allPerson.Where(p => p.LastName == currentPerson.LastName & p.FirstName == currentPerson.FirstName & p.Patronymic == currentPerson.Patronymic & p.Birthday == currentPerson.Birthday).ToList();
 
                     if (allPerson.Count == 0)
                     {
@@ -146,17 +133,12 @@ namespace Face_Detect_System_Test.Pages
 
                         PersonInfoForFaceRecEntities.GetContext().SaveChanges();
                         MessageBox.Show("Информация добавлена в базу данных!");
-                        TrainingProcessStackPanel.Visibility = Visibility.Visible;
-                        TrainingProcessText.Visibility = Visibility.Visible;
-                        faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
-                        MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, Label);
-                        TrainingProcessStackPanel.Visibility = Visibility.Hidden;
-                        TrainingProcessText.Visibility = Visibility.Hidden;
-                        MessageBox.Show("Модель обучена!");
+
+                        Update();
                     }
                     else
                     {
-                        MessageBox.Show("В базе данных уже существует информация о таком человеке!");
+                        MessageBox.Show("В базе данных уже существует человек с такими данными!");
                     }
                 }
                 catch(Exception ex)
@@ -166,6 +148,18 @@ namespace Face_Detect_System_Test.Pages
                 }
             }
             
+        }
+
+        private void Update()
+        {
+            AllPersonComboBox.Items.Clear();
+            var allPerson = PersonInfoForFaceRecEntities.GetContext().PersonInfo.ToList();
+            string decryptPerson;
+            foreach (var person in allPerson)
+            {
+                decryptPerson = aesEncryption.Decrypt(person.LastName) + " " + aesEncryption.Decrypt(person.FirstName) + " " + aesEncryption.Decrypt(person.Patronymic);
+                AllPersonComboBox.Items.Add(decryptPerson);
+            }
         }
 
         private void PersonLastName_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -194,18 +188,7 @@ namespace Face_Detect_System_Test.Pages
 
         private async void ModelTrainBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(Manager.RecognizerModelPath))
-            {
-                if (selectedPath != null)
-                {
-                    Manager.RecognizerModelPath = selectedPath + "recModel.xml";
-                }
-                else
-                {
-                    MessageBox.Show("Выберите папку куда будет сохранена модель!");
-                    return;
-                }
-            }
+
             if(AllPersonComboBox.SelectedValue == null)
             {
                 MessageBox.Show("Выберите человека из списка!");
@@ -216,52 +199,24 @@ namespace Face_Detect_System_Test.Pages
                 MessageBox.Show("Загрузите видеофайл!");
                 return;
             }
-            
+
             TrainingProcessStackPanel.Visibility = Visibility.Visible;
             TrainingProcessText.Visibility = Visibility.Visible;
             await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
             faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
             MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, AllPersonComboBox.SelectedIndex);
+            _ = Application.Current.Dispatcher.InvokeAsync(() =>
+            MainWindow.Instance.Update());
             TrainingProcessStackPanel.Visibility = Visibility.Hidden;
             TrainingProcessText.Visibility = Visibility.Hidden;
             MessageBox.Show("Модель обучена!");
         }
 
-        private void ModelDirectoryBtn_Click(object sender, RoutedEventArgs e)
+        
+
+        private void AddNewPerson_Click(object sender, RoutedEventArgs e)
         {
-
-            System.Windows.Forms.FolderBrowserDialog myFolderDialog = new System.Windows.Forms.FolderBrowserDialog();
-
-            // Настройка диалога
-            myFolderDialog.Description = "Выберите папку";
-            
-
-            // Показ диалога
-            if (myFolderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                if (myFolderDialog.SelectedPath != null)
-                {
-                    // Проверяем наличие русских букв или пробелов
-                    bool containsRussianOrSpace = myFolderDialog.SelectedPath.Any(c =>
-                        char.IsLetter(c) && (c > 127 ||
-                        (c >= 0x0400 && c <= 0x04FF)) ||  // Диапазон кириллицы
-                        char.IsWhiteSpace(c));
-
-                    if (containsRussianOrSpace)
-                    {
-                        MessageBox.Show("Путь не должен содержать русские буквы и пробелы!",
-                            "Ошибка", (MessageBoxButton)System.Windows.Forms.MessageBoxButtons.OK, (MessageBoxImage)System.Windows.Forms.MessageBoxIcon.Error);
-                        return;
-                    }
-                    selectedPath = myFolderDialog.SelectedPath;
-                    ModelDirectoryPathTextBlock.Text = selectedPath;
-
-                }
-                else
-                {
-                    MessageBox.Show("Произошла ошибка при выборе папки!");
-                }
-            }
+            AddNewPersonBlock.Visibility = Visibility.Visible;
         }
     }
 }

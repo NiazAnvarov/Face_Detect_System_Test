@@ -13,18 +13,19 @@
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <Image Name="FIOutputImage" Source="/Images/Default_picture.png" Height="850" Grid.Column="0" Margin="45 0 45 65" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBlock Text="Найти по ФИО" Grid.Column="1" TextAlignment="Center" FontSize="25" HorizontalAlignment="Right" Width="350" Background="#E3E3E3"/>
-        <StackPanel Orientation="Vertical" Grid.Column="1" Width="350" Margin="0 50 0 0">
+        <TextBlock Text="" Grid.Column="1" TextAlignment="Center" FontSize="25" HorizontalAlignment="Right" Width="350" Background="#E3E3E3"/>
+        <TextBlock Text="Введите ФИО" Margin="0 120 0 0" Grid.Column="1" TextAlignment="Center" FontSize="25" HorizontalAlignment="Right" Width="350" Background="#E3E3E3"/>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Width="350" Margin="0 150 0 0">
             <TextBox Name="FIOSearch" FontSize="25" Height="50" Margin="10"/>
             <Button Content="С видеокамеры" Name="WebCamStart" Click="WebCamStart_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
             <Button Content="С видеофайла" Name="VideoFileStart" Click="VideoFileStart_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
             <Button Content="Загрузить видеофайл" Name="VideoFile" Click="VideoFile_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
-
         </StackPanel>
-        <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Grid.Column="1" >
-            <Button Content="Загрузить фотографию" Name="PhotoLoad" Click="PhotoLoad_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
-            <Button Content="Завершить поиск по фото" Name="PhotoDetectStop" Click="PhotoDetectStop_Click" FontSize="25" Height="50" Margin="20 0 20 100" Background="#BFBFBF"/>
-        </StackPanel>
+        <!--<StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0 250 0 0"  Grid.Column="1" >
+            <TextBlock Text="Найти по фотографии" Grid.Column="1" TextAlignment="Center" FontSize="25" HorizontalAlignment="Right" Width="350" Background="#E3E3E3"/>
+            <Button Content="Начать поиск" Name="PhotoLoad" Click="PhotoLoad_Click" FontSize="25" Height="50" Margin="20" Background="#BFBFBF"/>
+            <Button Content="Завершить поиск" Name="PhotoDetectStop" Click="PhotoDetectStop_Click" FontSize="25" Height="50" Margin="20 0 20 100" Background="#BFBFBF"/>
+        </StackPanel>-->
 
     </Grid>
 </Page>

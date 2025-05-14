@@ -15,6 +15,8 @@ namespace Face_Detect_System_Test
         public static Frame MainFrame { get; set; }
         public static string RecognizerModelPath;
         public static LBPHFaceRecognizer recognizer = new LBPHFaceRecognizer();
+        public static string key = "1234567890abcdef1234567890abcdef";
+        public static string iv = "1234567890abcdef";
 
         private const string SETTINGS_FILE = "face_recognition_settings.json";
 

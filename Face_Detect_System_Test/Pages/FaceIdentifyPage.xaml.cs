@@ -30,13 +30,13 @@ namespace Face_Detect_System_Test.Pages
     {
 
         // пути к моделям
-        private const string pathHarCasc = "H:\\haarcascade_frontalface_alt2.xml"; //путь до каскада Хаар
+        
         
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
 
         public bool checkWeb = true;
         public bool checkVideo = true;
-        private string PhotoLoadPath = null;
+
         private Mat facePhoto = new Mat();
 
 
@@ -46,10 +46,9 @@ namespace Face_Detect_System_Test.Pages
         private double fps;
 
         // Создаем распознаватель лиц
-        private CascadeClassifier _faceCascade = new CascadeClassifier(pathHarCasc);
+        
         
         private FaceDetectorYN _detector;
-        private FaceDetectorYN _detectorPh;
         private FacesDetect facesDetect = new FacesDetect();
         
 
@@ -58,18 +57,7 @@ namespace Face_Detect_System_Test.Pages
             InitializeComponent();
             VideoFile.Visibility = Visibility.Hidden;
             WebCamStart.IsEnabled = true;
-            VideoFileStart.IsEnabled = true;
-            if (PhotoLoadPath != null)
-            {
-                FIOSearch.IsReadOnly = true;
-            }
-            else
-            {
-                FIOSearch.IsReadOnly = false;
-            }
-
-
-            
+            VideoFileStart.IsEnabled = true;            
         }
 
         public static ImageSource BitmapToImageSource(Bitmap bitmap)
@@ -134,16 +122,11 @@ namespace Face_Detect_System_Test.Pages
                     var faces = new Mat();
                     faces = facesDetect.DetectFaces(frame, _detector);
 
-                    
-                    if (PhotoLoadPath != null)
-                    {
-                            frame = facesDetect.FacePhotoIdentify(frame, faces, facePhoto);
-                    }
-                    else
-                    {
-                        var perInf = new List<PersonInfo>();
-                        frame = facesDetect.FaceIdentify(frame, faces, Manager.recognizer, ref perInf, FIOSearch.Text);
-                    }
+
+
+                    var perInf = new List<PersonInfo>();
+                    frame = facesDetect.FaceIdentify(frame, faces, Manager.recognizer, ref perInf, FIOSearch.Text);
+
 
                     FIOutputImage.Source = BitmapSourceConvert(frame);
                     await Task.Delay(1);
@@ -192,16 +175,11 @@ namespace Face_Detect_System_Test.Pages
                     var faces = new Mat();
                     faces = facesDetect.DetectFaces(frame, _detector);
 
-                    
-                    if (PhotoLoadPath != null)
-                    {
-                        frame = facesDetect.FacePhotoIdentify(frame, faces, facePhoto);
-                    }
-                    else
-                    {
-                        var perInf = new List<PersonInfo>();
-                        frame = facesDetect.FaceIdentify(frame, faces, Manager.recognizer, ref perInf, FIOSearch.Text);
-                    }
+
+
+                    var perInf = new List<PersonInfo>();
+                    frame = facesDetect.FaceIdentify(frame, faces, Manager.recognizer, ref perInf, FIOSearch.Text);
+
 
                     FIOutputImage.Source = BitmapSourceConvert(frame);
                     await Task.Delay(1);
@@ -279,53 +257,7 @@ namespace Face_Detect_System_Test.Pages
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr hObject);
 
-        private void PhotoLoad_Click(object sender, RoutedEventArgs e)
-        {
-            if (String.IsNullOrWhiteSpace(FIOSearch.Text))
-            {
-                PhotoLoadPath = null;
-                _detectorPh?.Dispose();
-                facePhoto = null;
-                var myopenImageDialog = new Microsoft.Win32.OpenFileDialog();
-                if (myopenImageDialog.ShowDialog() == true)
-                {
-                    if (myopenImageDialog.FileName.EndsWith(".jpg") || myopenImageDialog.FileName.EndsWith(".png"))
-                    {
-                        PhotoLoadPath = myopenImageDialog.FileName;
-                        var photo = new Bitmap(PhotoLoadPath).ToMat();
-                        var grayPhoto = photo.ToImage<Gray, byte>();
-                        grayPhoto._EqualizeHist();
-                        var facesInPhoto = _faceCascade.DetectMultiScale(grayPhoto, 1.1, 5, System.Drawing.Size.Empty);
-                        foreach (var faceInPhoto in facesInPhoto)
-                        {
-                            facePhoto = new Mat(photo, faceInPhoto);
-                            
-                        }
-                        FIOSearch.IsReadOnly = true;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Не верный тип файла!!!");
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Не удалось открыть файл!!!");
-                }
-            }
-            else
-            {
-                MessageBox.Show("Очистите поисковую строку!!!");
-            }
-        }
-
-        private void PhotoDetectStop_Click(object sender, RoutedEventArgs e)
-        {
-            PhotoLoadPath = null;
-            FIOSearch.IsReadOnly = false;
-            _detectorPh?.Dispose();
-            facePhoto = null;
-        }
+        
 
         
 

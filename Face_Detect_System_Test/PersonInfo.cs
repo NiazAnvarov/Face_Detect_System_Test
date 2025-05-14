@@ -19,13 +19,11 @@ namespace Face_Detect_System_Test
         public string FirstName { get; set; }
         public string Patronymic { get; set; }
         public System.DateTime Birthday { get; set; }
-        public string Activity { get; set; }
 
         public string BirthdayFormat
         {
             get
             {
-
                 return Birthday.ToShortDateString();
             }
         }

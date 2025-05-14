@@ -13,27 +13,25 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Orientation="Vertical" Grid.Column="0" Background="#E3E3E3">
-            <StackPanel Orientation="Horizontal" Margin="20 40 0 0" >
+            <StackPanel Orientation="Horizontal" Margin="20 50 0 0" >
                 <Image Source="/Images/Icon.png" Width="70"/>
                 <TextBlock Text="Face recognition system" Margin="10 0 0 0"  TextWrapping="Wrap" Width="200" TextAlignment="Center" VerticalAlignment="Center" FontSize="25"/>
             </StackPanel>
-            <StackPanel Name="FIPan" MouseDown="FIPan_MouseDown" Orientation="Horizontal" Margin="20 80 0 0">
+            <StackPanel Name="FIPan" MouseDown="FIPan_MouseDown" Orientation="Horizontal" Margin="40 100 0 0">
                 <Image Name="FIImg" Source="/Images/Face_detect_dark.png" Width="50" Height="50"/>
                 <TextBlock Name="FIText" Text="Найти человека" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" FontSize="20"/>
             </StackPanel>
-            <StackPanel Name="FDPan" MouseDown="FDPan_MouseDown" Orientation="Horizontal" Margin="20 5 0 0">
+            <StackPanel Name="FDPan" MouseDown="FDPan_MouseDown" Orientation="Horizontal" Margin="40 5 0 0">
                 <Image Name="FDImg" Source="/Images/Face_identify_dark.png" Width="50" Height="50"/>
                 <TextBlock Name="FDText" Text="Распознавание людей" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" FontSize="20"/>
             </StackPanel>
-            <StackPanel Name="MTPan" MouseDown="MTPan_MouseDown"  Orientation="Horizontal" Margin="20 5 0 0">
+            <StackPanel Name="MTPan" MouseDown="MTPan_MouseDown"  Orientation="Horizontal" Margin="40 5 0 0">
                 <Image Name="MTImg" Source="/Images/Model_training_dark.png" Width="50" Height="50"/>
                 <TextBlock Name="MTText" Text="Обучение модели" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" FontSize="20"/>
             </StackPanel>
+            <TextBlock Text="Необходимо обучить модель" Name="WarningMessageBlock" TextWrapping="Wrap" Margin="30 20 0 0" Width="250" Foreground="Red" HorizontalAlignment="Center" FontSize="25"/>
         </StackPanel>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-            <Button Name="RecModelLoadBtn" Content="Модель распознавания лиц" Click="RecModelLoadBtn_Click"  Width="270" Margin="5" FontSize="20" />
-            <TextBlock Name="ModelPathTextBox" HorizontalAlignment="Center" FontSize="20" Margin="0 0 0 50"/>
-        </StackPanel>
+        
         <Frame Name="MainFrame" Grid.Column="2" NavigationUIVisibility="Hidden"/>
     </Grid>
     

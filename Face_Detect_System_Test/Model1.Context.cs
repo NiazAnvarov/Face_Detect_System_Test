@@ -24,13 +24,13 @@ namespace Face_Detect_System_Test
 
         public static PersonInfoForFaceRecEntities GetContext()
         {
-            if (_context == null)
+            if(_context == null)
             {
                 _context = new PersonInfoForFaceRecEntities();
             }
             return _context;
         }
-
+    
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             throw new UnintentionalCodeFirstException();

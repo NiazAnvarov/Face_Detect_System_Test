@@ -17,6 +17,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Linq;
 
+
 namespace Face_Detect_System_Test
 {
     public partial class MainWindow : Window
@@ -26,15 +27,37 @@ namespace Face_Detect_System_Test
         private FaceDetectPage FDPage;
         private ModelTrainingPage MTPage;
         private readonly Manager _settingsManager;
+        private static string filePath = "keys.txt";
 
-        //private FaceDetectorYN _detector;
+        public static MainWindow Instance { get; private set; }
+
         private FacesDetect facesDetect = new FacesDetect();
-        private ModelTraining modelTr = new ModelTraining();
 
         public MainWindow()
         {
             InitializeComponent();
-            
+            Instance = this;
+
+            if (File.Exists(filePath))
+            {
+                string[] lines = File.ReadAllLines(filePath);
+                if (lines.Length >= 2)
+                {
+                    Manager.key = lines[0].Trim();
+                    Manager.iv = lines[1].Trim();
+                    MessageBox.Show("key = " + Manager.key);
+                    MessageBox.Show("iv = " + Manager.iv);
+                }
+                else
+                {
+                    Console.WriteLine("Недостаточно данных в файле для инициализации ключа и IV.");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Файл не найден: {filePath}");
+            }
+
             _settingsManager = new Manager();
 
             //Загружаем сохрненный путь при запуске
@@ -47,18 +70,18 @@ namespace Face_Detect_System_Test
                 try
                 {
                     Manager.recognizer.Read(savedPath);
-                    ModelPathTextBox.Text = Path.GetFileName(savedPath);
                     Manager.RecognizerModelPath = savedPath;
+                    WarningMessageBlock.Visibility = Visibility.Hidden;
                 }
                 catch
                 {
-                    MessageBox.Show("Ошибка при загрузке модели!");
+                    System.Windows.MessageBox.Show("Ошибка при загрузке модели!");
                 }
             }
             else
             {
-                
-                ModelPathTextBox.Text = "Модель не загружена";
+                WarningMessageBlock.Visibility = Visibility.Visible;
+                MTPan_MouseDown(null, null);
                 FIPan.IsEnabled = false;
                 FDPan.IsEnabled = false;
             }
@@ -79,9 +102,8 @@ namespace Face_Detect_System_Test
             MTText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
             MTImg.Source = new BitmapImage(new Uri(@"/Images/Model_training_dark.png", UriKind.Relative));
 
-            // Проверьте, если текущая страница не является
             if (FIPage != null)
-                return; // Если уже открыта подходящая страница, то ничего не делаем
+                return;
             if (FDPage != null)
             {
                 FDPage.checkWeb = false;
@@ -111,9 +133,8 @@ namespace Face_Detect_System_Test
             MTText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
             MTImg.Source = new BitmapImage(new Uri(@"/Images/Model_training_dark.png", UriKind.Relative));
 
-            // Проверьте, если текущая страница не является
             if (FDPage != null)
-                return; // Если уже открыта подходящая страница, то ничего не делаем
+                return;
             if (FIPage != null)
             {
                 FIPage.checkWeb = false;
@@ -144,9 +165,8 @@ namespace Face_Detect_System_Test
             MTText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
             MTImg.Source = new BitmapImage(new Uri(@"/Images/Model_training_light.png", UriKind.Relative));
 
-            // Проверьте, если текущая страница не является ModelTrainingPage
             if (MTPage != null)
-                return; // Если уже открыта подходящая страница, то ничего не делаем
+                return;
             if (FIPage != null)
             {
                 FIPage.checkWeb = false;
@@ -160,8 +180,6 @@ namespace Face_Detect_System_Test
                 FDPage = null;
             }
 
-
-            // Навигация на ModelTrainingPage
             MTPage = new ModelTrainingPage();
             MainFrame.Navigate(MTPage);
             Manager.MainFrame = MainFrame;
@@ -170,7 +188,6 @@ namespace Face_Detect_System_Test
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            //_detector?.Dispose();
             facesDetect?.Dispose();
 
         }
@@ -186,28 +203,25 @@ namespace Face_Detect_System_Test
 
                     if (!ValidateFilePath(openFileDialog.FileName))
                     {
-                        MessageBox.Show("Путь не должен содержать русские буквы и пробелы!",
+                        System.Windows.MessageBox.Show("Путь не должен содержать русские буквы и пробелы!",
                             "Ошибка", (MessageBoxButton)System.Windows.Forms.MessageBoxButtons.OK, (MessageBoxImage)System.Windows.Forms.MessageBoxIcon.Error);
                         return;
                     }
 
                     Manager.recognizer.Read(openFileDialog.FileName);
-                    ModelPathTextBox.Text = Path.GetFileName(openFileDialog.FileName);
                     _settingsManager.SaveModelPath(openFileDialog.FileName);
                     Manager.RecognizerModelPath = openFileDialog.FileName;
                     FIPan.IsEnabled = true;
                     FDPan.IsEnabled = true;
-
-
                 }
                 else
                 {
-                    MessageBox.Show("Не удалось загрузить файл!");
+                    System.Windows.MessageBox.Show("Не удалось загрузить файл!");
                 }
             }
             catch
             {
-                MessageBox.Show("Ошибка при загрузке модели!");
+                System.Windows.MessageBox.Show("Ошибка при загрузке модели!");
             }
         }
 
@@ -221,6 +235,32 @@ namespace Face_Detect_System_Test
                 char.IsLetter(c) && (c > 127 ||
                 (c >= 0x0400 && c <= 0x04FF)) ||  // Диапазон кириллицы
                 char.IsWhiteSpace(c));
+        }
+
+        public void Update()
+        {
+            string savedPath = _settingsManager.LoadModelPath();
+            if (!string.IsNullOrEmpty(savedPath))
+            {
+                FIPan.IsEnabled = true;
+                FDPan.IsEnabled = true;
+                try
+                {
+                    Manager.recognizer.Read(savedPath);
+                    Manager.RecognizerModelPath = savedPath;
+                    WarningMessageBlock.Visibility = Visibility.Hidden;
+                }
+                catch
+                {
+                    MessageBox.Show("Ошибка при загрузке модели!");
+                }
+            }
+            else
+            {
+                WarningMessageBlock.Visibility = Visibility.Visible;
+                FIPan.IsEnabled = false;
+                FDPan.IsEnabled = false;
+            }
         }
     }
 }

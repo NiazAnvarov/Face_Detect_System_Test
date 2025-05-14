@@ -22,7 +22,8 @@ namespace Face_Detect_System_Test
     {
 
         private FaceDetectorYN _detector;
-        private int Distance = 65;
+        private int Distance = 50;
+        private AesEncryption aesEncryption = new AesEncryption(Manager.key, Manager.iv);
 
         public FaceDetectorYN DetectorInit(string modelPath, int width, int height)
         {
@@ -132,7 +133,7 @@ namespace Face_Detect_System_Test
                                 foreach (var cp in currentPerson)
                                 {
                                     displayText = "";
-                                    displayText = cp.LastName.ToString() + " " + cp.FirstName.ToString() + " " + cp.Patronymic.ToString();
+                                    displayText = aesEncryption.Decrypt(cp.LastName).ToString() + " " + aesEncryption.Decrypt(cp.FirstName).ToString() + " " + aesEncryption.Decrypt(cp.Patronymic).ToString();
                                     perInfo.Add(cp);
                                 }
 
@@ -246,6 +247,7 @@ namespace Face_Detect_System_Test
 
                             if (result.Distance < Distance)
                             {
+                                FIOSearch = aesEncryption.Encrypt(FIOSearch);
                                 string displayText = "";
                                 int predictedLabel = result.Label;
                                 var currentPerson = PersonInfoForFaceRecEntities.GetContext().PersonInfo.Where(p => p.ID == predictedLabel).ToList();
@@ -255,7 +257,7 @@ namespace Face_Detect_System_Test
                                     foreach (var cp in currentPerson)
                                     {
                                         displayText = "";
-                                        displayText = cp.LastName.ToString() + " " + cp.FirstName.ToString() + " " + cp.Patronymic.ToString();
+                                        displayText = aesEncryption.Decrypt(cp.LastName.ToString()) + " " + aesEncryption.Decrypt(cp.FirstName.ToString()) + " " + aesEncryption.Decrypt(cp.Patronymic.ToString());
                                         perInfo.Add(cp);
                                     }
 
@@ -283,123 +285,7 @@ namespace Face_Detect_System_Test
             return frame;
         }
 
-        public Mat FacePhotoIdentify(Mat frame, Mat faces, Mat facePhoto)
-        {
-            try
-            {
-                if (faces.Rows > 0)
-                {
-                    var facesData = new Matrix<float>(faces.Rows, faces.Cols);
-                    faces.CopyTo(facesData);
-
-
-                    for (int i = 0; i < faces.Rows; i++)
-                    {
-                        float confidence = facesData[i, 0];
-                        if (confidence >= 0.9f)
-                        {
-                            // Нормализация координат центра
-                            float centerX = facesData[i, 4] + facesData[i, 2] / 4;
-                            float centerY = facesData[i, 1] + facesData[i, 3] / 4;
-
-                            // Нормализация размеров
-                            float width = facesData[i, 2] * (float)1.1;
-                            float height = facesData[i, 3] * (float)1.1;
-
-                            int frameWidth = frame.Width;
-                            int frameHeight = frame.Height;
-
-                            // Преобразование в пиксели с учетом размера кадра
-                            int rectX = (int)(centerX * frameWidth - width * frameWidth / 2);
-                            int rectY = (int)(centerY * frameHeight - height * frameHeight / 2);
-                            int rectWidth = (int)(width);
-                            int rectHeight = (int)(height);
-
-                            // Ограничение по границам изображения
-                            rectX = (int)(centerX - width / 1.9);
-                            rectY = (int)(centerY - height / 3.8);
-
-                            //Если рамка выходит за границы кадра
-                            if (rectY + rectHeight > frame.Height)
-                            {
-                                rectHeight -= rectY + rectHeight - frame.Height;
-                            }
-                            if (rectY < 0)
-                            {
-                                rectHeight += rectY;
-                                rectY = 0;
-                            }
-
-
-                            if (rectX + rectWidth > frame.Width)
-                            {
-                                rectWidth -= rectX + rectWidth - frame.Width;
-                            }
-                            if (rectX < 0)
-                            {
-                                rectWidth += rectX;
-                                rectX = 0;
-                            }
-
-                            // Обрезаем область лица из кадра
-                            Rectangle faceRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
-                            // Обрезаем лицо
-                            Mat faceImage = new Mat(frame, faceRect);
-                            if (CompareFaces(faceImage, facePhoto))
-                            {
-                                // Рисуем прямоугольник и результат распознавания
-                                CvInvoke.Rectangle(frame, faceRect, new MCvScalar(0, 255, 0), 2); // Зеленый для распознанных лиц 
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            return frame;
-        }
-
-        private bool CompareFaces(Mat img1, Mat img2)
-        {
-
-
-            // Инициализация SIFT
-            var sift = new SIFT(500);
-
-            // Извлечение дескрипторов
-            VectorOfKeyPoint keypoints1 = new VectorOfKeyPoint();
-            Mat descriptors1 = new Mat();
-            sift.DetectAndCompute(img1, null, keypoints1, descriptors1, false);
-
-            VectorOfKeyPoint keypoints2 = new VectorOfKeyPoint();
-            Mat descriptors2 = new Mat();
-            sift.DetectAndCompute(img2, null, keypoints2, descriptors2, false);
-
-            // Сопоставление дескрипторов
-            var matcher = new BFMatcher(DistanceType.L2);
-            VectorOfVectorOfDMatch matches = new VectorOfVectorOfDMatch();
-            matcher.Add(descriptors2);
-            matcher.KnnMatch(descriptors1, matches, 2);
-
-            // Фильтрация совпадений
-            int goodMatches = 0;
-            for (int i = 0; i < matches.Size; i++)
-            {
-                var match = matches[i];
-                // Приемлемое соотношение - первую пару достаточно хороша, по сравнению со второй
-                if (match.Size >= 2 && match[0].Distance < 0.75 * match[1].Distance)
-                {
-                    goodMatches++;
-                }
-            }
-
-            // Устанавливаем порог для решения, похожи ли лица
-            return goodMatches > 5; // Например, мы считаем, что 5 хороших совпадений достаточно для положительного ответа
-
-        }
+        
 
 
 

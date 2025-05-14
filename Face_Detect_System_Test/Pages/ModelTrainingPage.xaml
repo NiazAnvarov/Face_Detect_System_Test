@@ -4,48 +4,45 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Face_Detect_System_Test.Pages"
-      mc:Ignorable="d" d:DesignWidth="800"
+      mc:Ignorable="d" d:DesignWidth="1500"
       Title="ModelTrainingPage" Height="1080" Background="White">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Grid.Column="0">
-            <TextBlock Text="Добавление нового человке в базу данных" FontSize="25" HorizontalAlignment="Left" Margin="5 50 0 0"/>
-            <TextBlock Text="Данные человека:" FontSize="25" HorizontalAlignment="Left" Margin="5"/>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Фамилия" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
-                <TextBox Text="{Binding LastName}" Name="PersonLastName" Margin="5" FontSize="25" Width="200" Height="50"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Имя" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
-                <TextBox Text="{Binding FirstName}" Name="PersonFirstName" Margin="5" FontSize="25" Width="200" Height="50"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Отчество" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
-                <TextBox Text="{Binding Patronymic}" Name="PersonPatronymic" Margin="5" FontSize="25" Width="200" Height="50"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Дата рождения" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
-                <DatePicker Name="BirthdayDP" IsDropDownOpen="True" SelectedDateFormat="Short" FontSize="25" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Деятельность" VerticalAlignment="Center" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
-                <TextBox Text="{Binding Activity}" Margin="5" FontSize="25" Width="300" Height="50"/>
-            </StackPanel>
-            <Button Name="PersonAddBtn" Click="PersonAddBtn_Click" Content="Добавить в базу данных" HorizontalAlignment="Left" FontSize="25" Width="300" Height="50" Margin="20" Background="#BFBFBF"/>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0 100 0 0 " Grid.Column="0">
+            <TextBlock Text="Обучение модели" Margin="0 50 0 5" FontSize="30" HorizontalAlignment="Center"/>
+            <TextBlock Text="Выберите человека" FontSize="25" HorizontalAlignment="Center"/>
+            <ComboBox Name="AllPersonComboBox" Margin="10" Width="300" FontSize="25"/>
+            <TextBlock Text="Загрузите видеофайл" FontSize="25" Margin="10" HorizontalAlignment="Center"/>
+            <Button Name="VideoLoadBtn" Click="VideoLoadBtn_Click" Content="Загрузить видеофайл" Margin="10" FontSize="25" Width="300" Height="50"/>
+            <Button Name="ModelTrainBtn" Click="ModelTrainBtn_Click" Content="Обучить модель" FontSize="25" Margin="10" Width="300" Height="50"/>
         </StackPanel>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Grid.Column="1">
-            <TextBlock Text="Дообучение модели" Margin="0 50 0 5" FontSize="25" HorizontalAlignment="Center"/>
-            <TextBlock Text="Список людей" FontSize="25" HorizontalAlignment="Center"/>
-            <ComboBox Name="AllPersonComboBox" Margin="5" Width="300" FontSize="25"/>
-            <Button Name="ModelTrainBtn" Click="ModelTrainBtn_Click" Content="Обучить модель" FontSize="25" Margin="5" Width="300"/>
-            <Button Name="ModelDirectoryBtn" Click="ModelDirectoryBtn_Click" Content="Выбрать директорию" FontSize="25" Margin="5" Width="300"/>
-            <TextBlock Text="" Name="ModelDirectoryPathTextBlock" HorizontalAlignment="Center" FontSize="25" Margin="5"/>
+        <Button Content="Добавить человека" Name="AddNewPerson" Click="AddNewPerson_Click" Grid.Column="1" FontSize="25" HorizontalAlignment="Center" Width="250" Margin="0 0 0 580" Height="50"/>
+        <StackPanel Orientation="Vertical" Name="AddNewPersonBlock" HorizontalAlignment="Center" Margin="0 100 0 0 " Grid.Column="2">
+            <TextBlock Text="Добавление человека в базу данных" FontSize="30" HorizontalAlignment="Left" Margin="5 50 0 0"/>
+            <TextBlock Text="Введите данные:" FontSize="25" HorizontalAlignment="Left" Margin="5"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Фамилия" VerticalAlignment="Center" Width="180" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
+                <TextBox Text="{Binding LastName}" Name="PersonLastName" Margin="5" FontSize="25" Width="300" Height="50"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Имя" VerticalAlignment="Center" Margin="5" Width="180" FontSize="25" HorizontalAlignment="Center"/>
+                <TextBox Text="{Binding FirstName}" Name="PersonFirstName" Margin="5" FontSize="25" Width="300" Height="50"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Отчество" VerticalAlignment="Center" Margin="5" Width="180" FontSize="25" HorizontalAlignment="Center"/>
+                <TextBox Text="{Binding Patronymic}" Name="PersonPatronymic" Margin="5" FontSize="25" Width="300" Height="50"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Дата рождения" VerticalAlignment="Center" Width="180" Margin="5" FontSize="25" HorizontalAlignment="Center"/>
+                <DatePicker Name="BirthdayDP" IsDropDownOpen="True" Width="300" Margin="5" SelectedDateFormat="Short" FontSize="25" />
+            </StackPanel>
+            <Button Name="PersonAddBtn" Click="PersonAddBtn_Click" Content="Добавить" HorizontalAlignment="Left" FontSize="25" Width="300" Height="50" Margin="20" Background="#BFBFBF"/>
         </StackPanel>
-        <Button Name="VideoLoadBtn" Click="VideoLoadBtn_Click" Content="Загрузить видеофайл" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.ColumnSpan="2" FontSize="25" Width="300" Height="50" Margin="20" Background="#BFBFBF"/>
         <StackPanel Name="TrainingProcessStackPanel" Orientation="Horizontal" Visibility="Hidden" Grid.ColumnSpan="2" Background="#BF2D2C2C">
         </StackPanel>
         <TextBlock Name="TrainingProcessText" Text="Идет процесс обучения" Foreground="White" Visibility="Hidden" FontSize="50" HorizontalAlignment="Center" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
