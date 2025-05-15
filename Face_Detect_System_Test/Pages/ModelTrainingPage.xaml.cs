@@ -202,13 +202,18 @@ namespace Face_Detect_System_Test.Pages
 
             TrainingProcessStackPanel.Visibility = Visibility.Visible;
             TrainingProcessText.Visibility = Visibility.Visible;
-            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
-            faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
-            MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, AllPersonComboBox.SelectedIndex);
-            _ = Application.Current.Dispatcher.InvokeAsync(() =>
-            MainWindow.Instance.Update());
+            int label = AllPersonComboBox.SelectedIndex;
+            await Task.Run(() =>
+            {
+                _ = Application.Current.Dispatcher.InvokeAsync(() =>
+            MainWindow.Instance.trainProcess());
+                faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
+                MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, label); 
+            });
             TrainingProcessStackPanel.Visibility = Visibility.Hidden;
             TrainingProcessText.Visibility = Visibility.Hidden;
+            _ = Application.Current.Dispatcher.InvokeAsync(() =>
+            MainWindow.Instance.Update());
             MessageBox.Show("Модель обучена!");
         }
 

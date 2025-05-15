@@ -172,9 +172,14 @@ namespace Face_Detect_System_Test.Pages
 
                     frame = facesDetect.FaceRecognition(frame, faces, Manager.recognizer, ref perInf);
 
+                    PersonInfo prInf = new PersonInfo();
                     foreach (PersonInfo cp in perInf)
                     {
-                        PersInfoView.Items.Add(cp);
+                        prInf.LastName = aesEncryption.Decrypt(cp.LastName);
+                        prInf.FirstName = aesEncryption.Decrypt(cp.FirstName);
+                        prInf.Patronymic = aesEncryption.Decrypt(cp.Patronymic);
+                        prInf.Birthday = cp.Birthday;
+                        PersInfoView.Items.Add(prInf);
                     }
                     FIOutputImage.Source = BitmapSourceConvert(frame);
 

@@ -45,8 +45,6 @@ namespace Face_Detect_System_Test
                 {
                     Manager.key = lines[0].Trim();
                     Manager.iv = lines[1].Trim();
-                    MessageBox.Show("key = " + Manager.key);
-                    MessageBox.Show("iv = " + Manager.iv);
                 }
                 else
                 {
@@ -64,18 +62,21 @@ namespace Face_Detect_System_Test
             string savedPath = _settingsManager.LoadModelPath();
             if (!string.IsNullOrEmpty(savedPath))
             {
-                FIPan.IsEnabled = true;
-                FDPan.IsEnabled = true;
-                FIPan_MouseDown(null, null);
                 try
                 {
                     Manager.recognizer.Read(savedPath);
                     Manager.RecognizerModelPath = savedPath;
                     WarningMessageBlock.Visibility = Visibility.Hidden;
+                    FIPan.IsEnabled = true;
+                    FDPan.IsEnabled = true;
+                    FIPan_MouseDown(null, null);
                 }
                 catch
                 {
-                    System.Windows.MessageBox.Show("Ошибка при загрузке модели!");
+                    MTPan_MouseDown(null, null);
+                    FIPan.IsEnabled = false;
+                    FDPan.IsEnabled = false;
+                    //System.Windows.MessageBox.Show("Ошибка при загрузке модели!");
                 }
             }
             else
@@ -235,6 +236,12 @@ namespace Face_Detect_System_Test
                 char.IsLetter(c) && (c > 127 ||
                 (c >= 0x0400 && c <= 0x04FF)) ||  // Диапазон кириллицы
                 char.IsWhiteSpace(c));
+        }
+
+        public void trainProcess()
+        {
+            FIPan.IsEnabled = false;
+            FDPan.IsEnabled = false;
         }
 
         public void Update()
