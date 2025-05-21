@@ -36,7 +36,8 @@ namespace Face_Detect_System_Test
 
             foreach (Mat face in Faces)
             {
-                CvInvoke.CvtColor(face, grayFace, ColorConversion.Bgr2Gray);
+                grayFace = ProcessImage(face);
+                //CvInvoke.CvtColor(face, grayFace, ColorConversion.Bgr2Gray);
                 CvInvoke.EqualizeHist(grayFace, grayFace);
 
                 images.Add(grayFace);
@@ -187,6 +188,41 @@ namespace Face_Detect_System_Test
                 }
             }
         }
+
+        public Mat ProcessImage(Mat inputImage)
+        {
+            // Шаг 1: Предобработка изображения
+            Mat preprocessedImage = PreprocessImage(inputImage);
+
+            // Шаг 2: Устранение теней/бликов
+            preprocessedImage = RemoveShadows(preprocessedImage);
+
+            return preprocessedImage;
+        }
+
+        public Mat PreprocessImage(Mat inputImage)
+        {
+
+            // Шаг 1: Нормализация освещения с использованием CLAHE
+            Mat grayImage = new Mat();
+            CvInvoke.CvtColor(inputImage, grayImage, ColorConversion.Bgr2Gray);
+            Mat claheImage = new Mat();
+            // Создаем объект CLAHE
+            CvInvoke.CLAHE(grayImage, 2.0, new System.Drawing.Size(8, 8), claheImage);
+            // Шаг 2: Увеличение контрастности (можно дополнительно настроить)
+            Mat contrastImage = new Mat();
+            CvInvoke.Normalize(claheImage, contrastImage, 0, 255, NormType.MinMax, DepthType.Cv8U);
+            return contrastImage;
+        }
+
+        public Mat RemoveShadows(Mat inputImage)
+        {
+            // Примените фильтр Гаусса для сглаживания изображения
+            Mat smoothedImage = new Mat();
+            CvInvoke.GaussianBlur(inputImage, smoothedImage, new System.Drawing.Size(5, 5), 0);
+            return smoothedImage;
+        }
+
 
     }
 }

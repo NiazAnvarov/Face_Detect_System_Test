@@ -139,12 +139,11 @@ namespace Face_Detect_System_Test
 
                             // Обрезаем лицо
                             Mat faceImage = new Mat(alignedFace, faceRect);
-
-
+                            
                             // Конвертируем в черно-белое изображение и нормализуем размер
                             Mat grayFace = new Mat();
-
-                            CvInvoke.CvtColor(faceImage, grayFace, ColorConversion.Bgr2Gray);
+                            //CvInvoke.CvtColor(faceImage, grayFace, ColorConversion.Bgr2Gray);
+                            grayFace = ProcessImage(faceImage);
                             CvInvoke.EqualizeHist(grayFace, grayFace);
 
                             // Распознаем человека на изображении
@@ -164,7 +163,7 @@ namespace Face_Detect_System_Test
 
                                 // Рисуем прямоугольник и результат распознавания
                                 CvInvoke.Rectangle(frame, faceRect, new MCvScalar(0, 255, 0), 2); // Зеленый для распознанных лиц 
-                                // Отображаем результат распознавания
+                                                                                                  // Отображаем результат распознавания
                                 CvInvoke.PutText(frame, displayText,
                                     new System.Drawing.Point(rectX, rectY - 10),
                                     Emgu.CV.CvEnum.FontFace.HersheySimplex,
@@ -175,7 +174,7 @@ namespace Face_Detect_System_Test
                             {
                                 // Рисуем прямоугольник и результат распознавания
                                 CvInvoke.Rectangle(frame, faceRect, new MCvScalar(0, 0, 255), 2); // Красный для распознанных лиц 
-                                // Отображаем результат распознавания
+                                                                                                  // Отображаем результат распознавания
                                 CvInvoke.PutText(frame,
                                     "Unknown",
                                     new System.Drawing.Point(rectX, rectY - 10),
@@ -183,7 +182,6 @@ namespace Face_Detect_System_Test
                                     1,
                                     new MCvScalar(0, 0, 255));
                             }
-
                         }
                     }
                 }
@@ -310,8 +308,42 @@ namespace Face_Detect_System_Test
             return frame;
         }
 
-        
+        public Mat ProcessImage(Mat inputImage)
+        {
+            // Шаг 1: Предобработка изображения
+            Mat preprocessedImage = PreprocessImage(inputImage);
 
+            // Шаг 3: Устранение теней/бликов
+            preprocessedImage = RemoveShadows(preprocessedImage);
+
+            return preprocessedImage;
+        }
+
+        public Mat PreprocessImage(Mat inputImage)
+        {
+
+            // Шаг 1: Нормализация освещения с использованием CLAHE
+            Mat grayImage = new Mat();
+            CvInvoke.CvtColor(inputImage, grayImage, ColorConversion.Bgr2Gray);
+            Mat claheImage = new Mat();
+            // Создаем объект CLAHE
+            CvInvoke.CLAHE(grayImage, 2.0, new Size(8, 8), claheImage);
+
+            // Шаг 2: Увеличение контрастности (можно дополнительно настроить)
+            Mat contrastImage = new Mat();
+            CvInvoke.Normalize(claheImage, contrastImage, 0, 255, NormType.MinMax, DepthType.Cv8U);
+
+            return contrastImage;
+        }
+
+        public Mat RemoveShadows(Mat inputImage)
+        {
+            // Примените фильтр Гаусса для сглаживания изображения
+            Mat smoothedImage = new Mat();
+            CvInvoke.GaussianBlur(inputImage, smoothedImage, new Size(5, 5), 0);
+
+            return smoothedImage;
+        }
 
 
     }
