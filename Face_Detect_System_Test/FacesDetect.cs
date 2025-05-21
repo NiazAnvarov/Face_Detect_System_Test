@@ -22,7 +22,7 @@ namespace Face_Detect_System_Test
     {
 
         private FaceDetectorYN _detector;
-        private int Distance = 50;
+        private int Distance = 55;
         private AesEncryption aesEncryption = new AesEncryption(Manager.key, Manager.iv);
 
         public FaceDetectorYN DetectorInit(string modelPath, int width, int height)
@@ -47,6 +47,7 @@ namespace Face_Detect_System_Test
         public Mat DetectFaces(Mat frame, FaceDetectorYN _detector)
         {
             var faces = new Mat();
+            
             _detector.Detect(frame, faces);
 
             return faces;
@@ -58,6 +59,7 @@ namespace Face_Detect_System_Test
             {
                 if (faces.Rows > 0)
                 {
+                    
                     var facesData = new Matrix<float>(faces.Rows, faces.Cols);
                     faces.CopyTo(facesData);
 
@@ -112,8 +114,32 @@ namespace Face_Detect_System_Test
 
                             // Обрезаем область лица из кадра
                             Rectangle faceRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
+                            PointF eyeLeft = new PointF((int)facesData[i, 4], (int)facesData[i, 5]);
+                            PointF eyeRight = new PointF((int)facesData[i, 6], (int)facesData[i, 7]);
+
+                            // Рассчитаем центр между глазами
+                            PointF eyecenter = new PointF((eyeLeft.X + eyeRight.X) / 2, (eyeLeft.Y + eyeRight.Y) / 2);
+
+                            // Вычислим угол наклона
+                            var deltaY = eyeRight.Y - eyeLeft.Y;
+                            var deltaX = eyeRight.X - eyeLeft.X;
+                            var angle = Math.Atan2(deltaY, deltaX) * (180.0 / Math.PI);
+
+                            // Определим желаемую высоту и ширину
+                            int desiredWidth = frame.Width;  // Можно выбрать нужную ширину
+                            int desiredHeight = frame.Height; // Можно выбрать нужную высоту
+
+                            // Создайте матрицу преобразования
+                            Mat matrix = new Mat();
+                            CvInvoke.GetRotationMatrix2D(eyecenter, (float)angle, 1, matrix);
+
+                            // Примените аффинное преобразование
+                            Mat alignedFace = new Mat();
+                            CvInvoke.WarpAffine(frame, alignedFace, matrix, new System.Drawing.Size(desiredWidth, desiredHeight), Inter.Linear, Warp.Default);
+
                             // Обрезаем лицо
-                            Mat faceImage = new Mat(frame, faceRect);
+                            Mat faceImage = new Mat(alignedFace, faceRect);
+
 
                             // Конвертируем в черно-белое изображение и нормализуем размер
                             Mat grayFace = new Mat();
@@ -124,7 +150,6 @@ namespace Face_Detect_System_Test
                             // Распознаем человека на изображении
                             var result = recognizer.Predict(grayFace);
                             Console.WriteLine(result.Distance);
-
                             if (result.Distance < Distance)
                             {
                                 string displayText = "";
@@ -167,12 +192,13 @@ namespace Face_Detect_System_Test
             {
                 Console.WriteLine(ex.Message);
             }
-
+            
             return frame;
         }
 
         public Mat FaceIdentify(Mat frame, Mat faces, LBPHFaceRecognizer recognizer, ref List<PersonInfo> perInfo, String FIOSearch)
         {
+
             try
             {
 
@@ -244,7 +270,7 @@ namespace Face_Detect_System_Test
                             // Распознаем человека на изображении
                             var result = recognizer.Predict(grayFace);
                             Console.WriteLine(result.Distance);
-
+                            
                             if (result.Distance < Distance)
                             {
                                 FIOSearch = aesEncryption.Encrypt(FIOSearch);
@@ -281,7 +307,6 @@ namespace Face_Detect_System_Test
             {
                 Console.WriteLine(ex.Message);
             }
-
             return frame;
         }
 

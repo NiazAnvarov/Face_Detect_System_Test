@@ -85,7 +85,7 @@ namespace Face_Detect_System_Test
                 {
                     if (!capture.Read(frame))
                         break;
-                    CvInvoke.Flip(frame, frame, FlipType.Horizontal);
+                    
                     if (frame.IsEmpty)
                         break;
 
@@ -96,7 +96,7 @@ namespace Face_Detect_System_Test
                         _detector = faceDetector.DetectorInit(pathYuNetModel, frameWidth, frameHeight);
                         checkWH = false;
                     }
-
+                    CvInvoke.Flip(frame, frame, FlipType.Horizontal);
                     faces = faceDetector.DetectFaces(frame, _detector);
 
                     try
