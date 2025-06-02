@@ -256,13 +256,36 @@ namespace Face_Detect_System_Test
 
                             // Обрезаем область лица из кадра
                             Rectangle faceRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
+                            PointF eyeLeft = new PointF((int)facesData[i, 4], (int)facesData[i, 5]);
+                            PointF eyeRight = new PointF((int)facesData[i, 6], (int)facesData[i, 7]);
+
+                            // Рассчитаем центр между глазами
+                            PointF eyecenter = new PointF((eyeLeft.X + eyeRight.X) / 2, (eyeLeft.Y + eyeRight.Y) / 2);
+
+                            // Вычислим угол наклона
+                            var deltaY = eyeRight.Y - eyeLeft.Y;
+                            var deltaX = eyeRight.X - eyeLeft.X;
+                            var angle = Math.Atan2(deltaY, deltaX) * (180.0 / Math.PI);
+
+                            // Определим желаемую высоту и ширину
+                            int desiredWidth = frame.Width;  // Можно выбрать нужную ширину
+                            int desiredHeight = frame.Height; // Можно выбрать нужную высоту
+
+                            // Создайте матрицу преобразования
+                            Mat matrix = new Mat();
+                            CvInvoke.GetRotationMatrix2D(eyecenter, (float)angle, 1, matrix);
+
+                            // Примените аффинное преобразование
+                            Mat alignedFace = new Mat();
+                            CvInvoke.WarpAffine(frame, alignedFace, matrix, new System.Drawing.Size(desiredWidth, desiredHeight), Inter.Linear, Warp.Default);
+
                             // Обрезаем лицо
-                            Mat faceImage = new Mat(frame, faceRect);
+                            Mat faceImage = new Mat(alignedFace, faceRect);
 
                             // Конвертируем в черно-белое изображение и нормализуем размер
                             Mat grayFace = new Mat();
-
-                            CvInvoke.CvtColor(faceImage, grayFace, ColorConversion.Bgr2Gray);
+                            //CvInvoke.CvtColor(faceImage, grayFace, ColorConversion.Bgr2Gray);
+                            grayFace = ProcessImage(faceImage);
                             CvInvoke.EqualizeHist(grayFace, grayFace);
 
                             // Распознаем человека на изображении
@@ -271,11 +294,11 @@ namespace Face_Detect_System_Test
                             
                             if (result.Distance < Distance)
                             {
-                                FIOSearch = aesEncryption.Encrypt(FIOSearch);
+                                //FIOSearch = aesEncryption.Encrypt(FIOSearch);
                                 string displayText = "";
                                 int predictedLabel = result.Label;
                                 var currentPerson = PersonInfoForFaceRecEntities.GetContext().PersonInfo.Where(p => p.ID == predictedLabel).ToList();
-                                currentPerson = currentPerson.Where(p => FIOSearch.ToLower().Contains(p.LastName.ToLower()) || FIOSearch.ToLower().Contains(p.FirstName.ToLower()) || FIOSearch.ToLower().Contains(p.Patronymic.ToLower())).ToList();
+                                currentPerson = currentPerson.Where(p => FIOSearch.ToLower().Contains(aesEncryption.Decrypt(p.LastName.ToString()).ToLower()) || FIOSearch.ToLower().Contains(aesEncryption.Decrypt(p.FirstName.ToString()).ToLower()) || FIOSearch.ToLower().Contains(aesEncryption.Decrypt(p.Patronymic.ToString()).ToLower())).ToList();
                                 if (currentPerson.Count > 0)
                                 {
                                     foreach (var cp in currentPerson)

@@ -15,6 +15,7 @@ using System.Windows.Controls;
 using Emgu.CV.Dnn;
 using System.Windows.Media.Imaging;
 using System.Windows;
+using System.Data.Entity.Core.Metadata.Edm;
 
 namespace Face_Detect_System_Test
 {
@@ -24,11 +25,109 @@ namespace Face_Detect_System_Test
         private readonly Manager _settingsManager = new Manager();
         private FacesDetect faceDetector = new FacesDetect();
         private FaceDetectorYN _detector;
+        //private LBPHFaceRecognizer recognizer = new LBPHFaceRecognizer();
+
+        //public void photoModelTraining(String filePath, String pathYuNetModel, String recognizerPath, int Label)
+        //{
+        //    Mat Image = CvInvoke.Imread(filePath, ImreadModes.Color);
+        //    List<Mat> faceFromImage = new List<Mat>();
+        //    List<int> labels = new List<int>();
+        //    labels.Add(Label);
+        //    Mat faces = new Mat();
+
+        //    _detector = faceDetector.DetectorInit(pathYuNetModel, Image.Width, Image.Height);
+
+        //    CvInvoke.Flip(Image, Image, FlipType.Horizontal);
+        //    faces = faceDetector.DetectFaces(Image, _detector);
+
+        //    try
+        //    {
+        //        if (faces.Rows > 0)
+        //        {
+        //            var facesData = new Matrix<float>(faces.Rows, faces.Cols);
+        //            faces.CopyTo(facesData);
+
+        //            for (int i = 0; i < faces.Rows; i++)
+        //            {
+        //                float confidence = facesData[i, 0];
+        //                if (confidence >= 0.9f)
+        //                {
+        //                    // Нормализация координат центра
+        //                    float centerX = facesData[i, 4] + facesData[i, 2] / 4;
+        //                    float centerY = facesData[i, 1] + facesData[i, 3] / 4;
+
+        //                    // Нормализация размеров
+        //                    float width = facesData[i, 2] * (float)1.1;
+        //                    float height = facesData[i, 3] * (float)1.1;
+
+        //                    int rectX = (int)(centerX * Image.Width - width * Image.Width / 2);
+        //                    int rectY = (int)(centerY * Image.Height - height * Image.Height / 2);
+        //                    int rectWidth = (int)(width);
+        //                    int rectHeight = (int)(height);
+
+        //                    // Ограничение по границам изображения
+        //                    rectX = (int)(centerX - width / 1.9);
+        //                    rectY = (int)(centerY - height / 3.8);
+
+        //                    // Если рамка выходит за границы кадра
+        //                    if (rectY + rectHeight > Image.Height)
+        //                        rectHeight -= rectY + rectHeight - Image.Height;
+        //                    if (rectY < 0)
+        //                    {
+        //                        rectHeight += rectY;
+        //                        rectY = 0;
+        //                    }
+
+        //                    if (rectX + rectWidth > Image.Width)
+        //                        rectWidth -= rectX + rectWidth - Image.Width;
+        //                    if (rectX < 0)
+        //                    {
+        //                        rectWidth += rectX;
+        //                        rectX = 0;
+        //                    }
+
+        //                    Rectangle faceRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
+        //                    Mat faceImage = new Mat(Image, faceRect);
+                            
+        //                    Mat grayFace = new Mat();
+        //                    grayFace = ProcessImage(faceImage);
+        //                    //CvInvoke.CvtColor(face, grayFace, ColorConversion.Bgr2Gray);
+        //                    CvInvoke.EqualizeHist(grayFace, grayFace);
+        //                    faceFromImage.Add(grayFace);
+                            
+        //                }
+        //            }
+
+        //            if (faceFromImage.Count > 0)
+        //            {
+        //                if (Manager.RecognizerModelPath != null)
+        //                {
+        //                    //recognizer.Read(modelPath);
+        //                    //recognizer.Train(images.ToArray(), labels.ToArray());
+        //                    Manager.recognizer.Update(faceFromImage.ToArray(), labels.ToArray());
+        //                    Manager.recognizer.Write(recognizerPath);
+        //                }
+        //                else
+        //                {
+
+        //                    recognizerPath = "H:\\newRecMod.xml";
+        //                    recognizer.Train(faceFromImage.ToArray(), labels.ToArray());
+        //                    recognizer.Write(recognizerPath);
+        //                    Manager.RecognizerModelPath = recognizerPath;
+        //                    _settingsManager.SaveModelPath(recognizerPath);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.Message);
+        //    }
+        //}
+    
 
         public void ModelTrain(string modelPath, List<Mat> Faces, int label)
         {
-
-
             // Загрузка изображений для обучения
             List<Mat> images = new List<Mat>();
             List<int> labels = new List<int>();
@@ -161,32 +260,6 @@ namespace Face_Detect_System_Test
             }
 
             return facesFromFrame;
-        }
-
-        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
-        public static extern bool DeleteObject(IntPtr hObject);
-
-        private BitmapSource BitmapSourceConvert(Mat mat)
-        {
-            if (mat.IsEmpty)
-                throw new ArgumentException("Source Mat is empty.");
-
-            using (var bitmap = mat.ToImage<Bgr, byte>().ToBitmap())
-            {
-                var hBitmap = bitmap.GetHbitmap();
-                try
-                {
-                    return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                        hBitmap,
-                        IntPtr.Zero,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                }
-                finally
-                {
-                    DeleteObject(hBitmap);
-                }
-            }
         }
 
         public Mat ProcessImage(Mat inputImage)

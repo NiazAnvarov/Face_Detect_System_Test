@@ -29,28 +29,14 @@ namespace Face_Detect_System_Test.Pages
     public partial class FaceIdentifyPage : Page
     {
 
-        // пути к моделям
-        
-        
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
-
         public bool checkWeb = true;
         public bool checkVideo = true;
-
-        private Mat facePhoto = new Mat();
-
-
         private bool CheckHW = true;
         private int frameWidth;
         private int frameHeight;
-        private double fps;
-
-        // Создаем распознаватель лиц
-        
-        
         private FaceDetectorYN _detector;
         private FacesDetect facesDetect = new FacesDetect();
-        
 
         public FaceIdentifyPage()
         {
@@ -96,7 +82,6 @@ namespace Face_Detect_System_Test.Pages
                 {
                     frameWidth = (int)capture.Get(CapProp.FrameWidth);
                     frameHeight = (int)capture.Get(CapProp.FrameHeight);
-                    fps = capture.Get(CapProp.Fps);
                     _detector = facesDetect.DetectorInit(pathYuNetModel, frameWidth, frameHeight);
                     CheckHW = false;
                 }
@@ -121,8 +106,6 @@ namespace Face_Detect_System_Test.Pages
 
                     var faces = new Mat();
                     faces = facesDetect.DetectFaces(frame, _detector);
-
-
 
                     var perInf = new List<PersonInfo>();
                     frame = facesDetect.FaceIdentify(frame, faces, Manager.recognizer, ref perInf, FIOSearch.Text);
@@ -150,7 +133,6 @@ namespace Face_Detect_System_Test.Pages
                 {
                     frameWidth = (int)capture.Get(CapProp.FrameWidth);
                     frameHeight = (int)capture.Get(CapProp.FrameHeight);
-                    fps = capture.Get(CapProp.Fps);
                     _detector = facesDetect.DetectorInit(pathYuNetModel, frameWidth, frameHeight);
                     CheckHW = false;
                 }
@@ -256,10 +238,5 @@ namespace Face_Detect_System_Test.Pages
         // Импортируем функцию для удаления HBitmap
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr hObject);
-
-        
-
-        
-
     }
 }

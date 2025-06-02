@@ -19,6 +19,7 @@
             <ComboBox Name="AllPersonComboBox" Margin="10" Width="300" FontSize="25"/>
             <TextBlock Text="Загрузите видеофайл" FontSize="25" Margin="10" HorizontalAlignment="Center"/>
             <Button Name="VideoLoadBtn" Click="VideoLoadBtn_Click" Content="Загрузить видеофайл" Margin="10" FontSize="25" Width="300" Height="50"/>
+            <!--<Button Name="PhotoLoadBtn" Content="Загрузить фото" Click="PhotoLoadBtn_Click" Margin="10" FontSize="25" Width="300" Height="50"/>-->
             <Button Name="ModelTrainBtn" Click="ModelTrainBtn_Click" Content="Обучить модель" FontSize="25" Margin="10" Width="300" Height="50"/>
         </StackPanel>
         <Button Content="Добавить человека" Name="AddNewPerson" Click="AddNewPerson_Click" Grid.Column="1" FontSize="25" HorizontalAlignment="Center" Width="250" Margin="0 0 0 580" Height="50"/>

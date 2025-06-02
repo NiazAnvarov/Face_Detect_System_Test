@@ -31,7 +31,6 @@ namespace Face_Detect_System_Test.Pages
     public partial class ModelTrainingPage : Page
     {
         private AesEncryption aesEncryption = new AesEncryption(Manager.key, Manager.iv);
-        //public ObservableCollection<PhotoItem> Photos { get; } = new ObservableCollection<PhotoItem>();
         private ModelTraining MDTrain = new ModelTraining();
         private const string pathYuNetModel = "H:\\face_detection_yunet_2023mar.onnx"; //путь до модели нейронной сети YuNet
         private List<Mat> faces = new List<Mat>();
@@ -63,17 +62,16 @@ namespace Face_Detect_System_Test.Pages
             var myopenFileDialog = new Microsoft.Win32.OpenFileDialog();
             if (myopenFileDialog.ShowDialog() == true)
             {
-                filePath = myopenFileDialog.FileName;
-
-                if (!string.IsNullOrEmpty(filePath))
+                if (!string.IsNullOrEmpty(myopenFileDialog.FileName))
                 {
-                    if (filePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
+                    if (myopenFileDialog.FileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
                     {
                         try
                         {
                             // Проверяем существует ли файл
-                            if (File.Exists(filePath))
+                            if (File.Exists(myopenFileDialog.FileName))
                             {
+                                filePath = myopenFileDialog.FileName;
                                 System.Windows.MessageBox.Show($"Выбранный файл: {filePath}");
                             }
                             else
@@ -189,7 +187,7 @@ namespace Face_Detect_System_Test.Pages
         private async void ModelTrainBtn_Click(object sender, RoutedEventArgs e)
         {
 
-            if(AllPersonComboBox.SelectedValue == null)
+            if (AllPersonComboBox.SelectedValue == null)
             {
                 MessageBox.Show("Выберите человека из списка!");
                 return;
@@ -199,7 +197,6 @@ namespace Face_Detect_System_Test.Pages
                 MessageBox.Show("Загрузите видеофайл!");
                 return;
             }
-
             TrainingProcessStackPanel.Visibility = Visibility.Visible;
             TrainingProcessText.Visibility = Visibility.Visible;
             int label = AllPersonComboBox.SelectedIndex;
@@ -208,7 +205,7 @@ namespace Face_Detect_System_Test.Pages
                 _ = Application.Current.Dispatcher.InvokeAsync(() =>
             MainWindow.Instance.trainProcess());
                 faces = MDTrain.FacesDetect(filePath, pathYuNetModel);
-                MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, label); 
+                MDTrain.ModelTrain(Manager.RecognizerModelPath, faces, label);
             });
             TrainingProcessStackPanel.Visibility = Visibility.Hidden;
             TrainingProcessText.Visibility = Visibility.Hidden;
@@ -217,11 +214,10 @@ namespace Face_Detect_System_Test.Pages
             MessageBox.Show("Модель обучена!");
         }
 
-        
-
         private void AddNewPerson_Click(object sender, RoutedEventArgs e)
         {
             AddNewPersonBlock.Visibility = Visibility.Visible;
         }
+
     }
 }
